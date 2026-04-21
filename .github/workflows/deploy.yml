@@ -1,0 +1,93 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Fix workspace permissions
+        run: docker run --rm -v ${{ github.workspace }}:/workspace alpine sh -c "chown -R $(id -u):$(id -g) /workspace || true"
+        continue-on-error: true
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          clean: false
+
+      - name: Validate required secrets
+        run: |
+          missing=""
+          [ -z "$DB_PASSWORD" ] && missing="$missing DB_PASSWORD"
+          [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
+          [ -z "$SESSION_SECRET" ] && missing="$missing SESSION_SECRET"
+          [ -z "$DB_USERNAME" ] && missing="$missing DB_USERNAME"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required secrets:$missing"
+            exit 1
+          fi
+          echo "All required secrets are set."
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+
+      - name: Create .env file
+        run: |
+          echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-jcw_costpilot}" > .env
+          echo "USER_ID=${USER_ID:-jcw}" >> .env
+          echo "FRONTEND_PORT=${FRONTEND_PORT:-3033}" >> .env
+          echo "DB_USERNAME=${DB_USERNAME}" >> .env
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+          echo "JWT_SECRET=${JWT_SECRET}" >> .env
+          echo "SESSION_SECRET=${SESSION_SECRET}" >> .env
+        env:
+          COMPOSE_PROJECT_NAME: ${{ vars.COMPOSE_PROJECT_NAME }}
+          USER_ID: ${{ vars.USER_ID }}
+          FRONTEND_PORT: ${{ vars.FRONTEND_PORT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+
+      - name: Prep environment
+        run: |
+          # Shutdown existing containers for this specific project
+          docker compose down --remove-orphans || true
+          # Force remove specific containers by name if they are stuck
+          docker rm -f ${USER_ID:-jcw}-backend ${USER_ID:-jcw}-frontend ${USER_ID:-jcw}-db || true
+        env:
+          USER_ID: ${{ vars.USER_ID }}
+
+      - name: Build and Deploy
+        run: docker compose up --build --force-recreate --remove-orphans -d
+
+      - name: Verify deployment
+        run: |
+          echo "=== Container Status ==="
+          docker compose ps
+          sleep 15
+          echo ""
+          echo "=== Health Check ==="
+          # Backend (Internal check via container exec)
+          docker exec ${USER_ID:-jcw}-backend sh -c "wget -qO- http://localhost:8081/actuator/health || curl -sf http://localhost:8081/actuator/health" > /dev/null && echo "Backend  : OK" || echo "Backend  : not responding"
+          # Frontend (External check - open port)
+          curl -sf --max-time 10 -o /dev/null -w "Frontend : HTTP %{http_code}\n" http://localhost:${FRONTEND_PORT:-3033} || echo "Frontend : not responding"
+          echo ""
+          echo "=== DB Connection Check ==="
+          docker exec ${USER_ID:-jcw}-db psql -U ${DB_USERNAME} -d costpilotdb -c "SELECT 1 AS health;" || echo "DB check failed"
+        env:
+          FRONTEND_PORT: ${{ vars.FRONTEND_PORT }}
+          USER_ID: ${{ vars.USER_ID }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+
+      - name: Clean up old images
+        run: docker image prune -f

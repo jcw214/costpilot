@@ -1,0 +1,40 @@
+services:
+  backend:
+    image: ${BACKEND_IMAGE:-costpilot-backend:latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ${USER_ID:-jcw}-backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/costpilotdb?stringtype=unspecified
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:?DB_USERNAME is required}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-costpilot-frontend:latest}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ${USER_ID:-jcw}-frontend
+    environment:
+      - API_BASE_URL=http://backend:8081
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    container_name: ${USER_ID:-jcw}-db
+    environment:
+      POSTGRES_DB: costpilotdb
+      POSTGRES_USER: ${DB_USERNAME:?DB_USERNAME is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    restart: unless-stopped

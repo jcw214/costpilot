@@ -1,0 +1,86 @@
+# ==============================================================================
+# [ Local Development - 소스코드 Volume Mount 환경 ]
+# 실행: docker compose -f docker-compose.local.yml up -d
+# ==============================================================================
+
+services:
+  db:
+    image: postgres:17
+    container_name: ${USER_ID:-jcw}-local-db
+    environment:
+      POSTGRES_DB: costpilotdb
+      POSTGRES_USER: ${DB_USERNAME:?DB_USERNAME is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    ports:
+      - "${DB_PORT:-5533}:5432"
+    volumes:
+      - ./postgres_data_local:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    image: gradle:8.5.0-jdk21
+    container_name: ${USER_ID:-jcw}-local-backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - backend-gradle-cache:/home/gradle/.gradle
+    command: ./gradlew bootRun --no-daemon
+    ports:
+      - "${BACKEND_PORT:-8033}:8081"
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/costpilotdb?stringtype=unspecified
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:?DB_USERNAME is required}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD is required}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    container_name: ${USER_ID:-jcw}-local-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: >
+      sh -c "npm install && npm run dev"
+    ports:
+      - "${FRONTEND_PORT:-3033}:3000"
+    environment:
+      - API_BASE_URL=http://backend:8081
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
+      - HOSTNAME=0.0.0.0
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend-gradle-cache:
+
+# ==============================================================================
+# [ 실행 명령어 가이드 ]
+# ==============================================================================
+#
+# 1. 로컬 개발 (Volume Mount, 소스 실시간 반영)
+#    docker compose -f docker-compose.local.yml up -d
+#
+# 2. 프로덕션 배포 (이미지 빌드, 포트 비노출)
+#    docker compose -f docker-compose.yml up --build -d
+#
+# 3. 프로덕션 + 포트 개방 (로컬 테스트)
+#    docker compose up --build -d
+#    (docker-compose.yml + docker-compose.override.yml 자동 병합)
+#
+# 4. 컨테이너 중지
+#    docker compose down
+#
+# 5. 서비스 로그 확인
+#    docker compose logs -f [서비스명]
+#
+# 6. 접속 주소 (로컬 기준)
+#    - Frontend: http://localhost:3033
+#    - Backend API: http://localhost:8033
+#    - DB: localhost:5533
+# ==============================================================================

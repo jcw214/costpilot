@@ -1,0 +1,8 @@
+# 로컬 개발(Local Development) 환경 전용 설정
+# 'docker compose up' 명령 시 docker-compose.yml과 자동으로 병합됩니다.
+# 배포 환경에서는 이 파일을 제외하고 실행합니다.
+
+services:
+  frontend:
+    ports:
+      - "${FRONTEND_PORT:-3033}:3001"
