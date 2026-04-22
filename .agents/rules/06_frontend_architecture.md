@@ -75,7 +75,7 @@ Browser ──HTTPS──▶ Next.js (Port 3033)
 | 5 | **원가 요인 분석** | `/variance` | 분석 | variance/labor, variance/overhead, variance/budget, variance/summary | Waterfall + Diverging Bar |
 | 6 | **성과 요인 분석** | `/performance` | 분석 | performance/margin, performance/utilization, performance/profit | Grouped Bar + Horizontal Bar + Scatter |
 | 7 | **기준 데이터** | `/master` | CRUD | departments, employees, projects, project-types, job-grades | 5개 탭 + 테이블 + 직급 시급 수정 |
-| 8 | **거래 데이터** | `/transaction` | CRUD | timesheets, outsourcing-costs, overhead-costs, budgets | 4개 탭 + 테이블 + CRUD 모달 |
+| 8 | **거래 데이터** | `/transaction` | CRUD | timesheets, project-direct-costs, overhead-costs, budgets | 4개 탭 + 테이블 + CRUD 모달 |
 | 9 | **설정** | `/settings` | 설정 | standard-costs | 표준공수 테이블 + 수정 |
 
 ---
@@ -166,7 +166,7 @@ frontend/
 
 | 모듈 | 차트 컴포넌트 | Recharts 요소 | 시각화 대상 |
 |---|---|---|---|
-| M1 | StackedBarChart | `<BarChart>` + `<Bar stackId>` | 프로젝트별 원가 구성 (직접인건비/외주비/간접원가) |
+| M1 | StackedBarChart | `<BarChart>` + `<Bar stackId>` | 프로젝트별 원가 구성 (직접인건비/직접경비/간접원가) |
 | M1 | PieDonutChart | `<PieChart>` + `<Pie innerRadius>` | 전사 원가 구성비율 |
 | M2 | GroupedBarChart | `<BarChart>` + 다중 `<Bar>` | 산정 방식별 배부 금액 비교 |
 | M3 | HorizontalBarChart | `<BarChart layout="vertical">` | 프로젝트별 표준원가 배분 |
@@ -288,7 +288,7 @@ CMD ["node", "server.js"]
 | 원가 요인 분석 `/variance` | variance/labor, overhead, budget, summary | Waterfall + Diverging + Horizontal Bar |
 | 성과 요인 분석 `/performance` | performance/margin, utilization, profit | Grouped Bar + Horizontal + Scatter |
 | 기준 데이터 `/master` | departments, employees, projects, ... | DataTable |
-| 거래 데이터 `/transaction` | timesheets, outsourcing-costs, ... | DataTable + Modal |
+| 거래 데이터 `/transaction` | timesheets, project-direct-costs, ... | DataTable + Modal |
 | 설정 `/settings` | standard-costs | DataTable (수정 가능) |
 
 ---

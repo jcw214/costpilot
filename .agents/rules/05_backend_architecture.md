@@ -39,7 +39,7 @@ Controller (Driving Adapter)
 |---|---|---|---|
 | **organization** | departments, employees, projects, project_types, job_grades | `/api/departments`, `/api/employees`, `/api/projects`, `/api/project-types`, `/api/job-grades` | 조직·인력·프로젝트 기준 데이터 |
 | **timesheet** | timesheets | `/api/timesheets` | 투입 공수 CRUD |
-| **expense** | outsourcing_costs, overhead_costs | `/api/outsourcing-costs`, `/api/overhead-costs` | 외주비·간접비 CRUD |
+| **expense** | project_direct_costs, overhead_costs | `/api/project-direct-costs`, `/api/overhead-costs` | 프로젝트 직접비·간접비 CRUD |
 | **budget** | budgets, standard_costs | `/api/budgets`, `/api/standard-costs` | 예산·표준원가 관리 |
 | **analysis** | (저장 테이블 없음) | `/api/analysis/**` | M1~M5 실시간 분석 계산 |
 
@@ -86,7 +86,7 @@ backend/src/main/java/com/costpilot/
 │   └── adapter/       (web/ + persistence/)
 │
 ├── expense/           ← 도메인 3
-│   ├── domain/        (OutsourcingCost, OverheadCost)
+│   ├── domain/        (ProjectDirectCost, OverheadCost)
 │   ├── port/          (ExpenseUseCase, *Repository)
 │   ├── service/       (ExpenseService)
 │   └── adapter/       (web/ + persistence/)
@@ -178,7 +178,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) {
         if (departmentRepository.count() > 0) return; // 이미 초기화 → 스킵
         // 1. 본부 5개  2. 직급 5개  3. 유형 7개  4. 인력 80명
-        // 5. 프로젝트 20개  6. 공수 ~4,800건  7. 외주비 ~30건
+        // 5. 프로젝트 20개  6. 공수 ~4,800건  7. 프로젝트 직접비 ~50건
         // 8. 간접비 ~12건  9. 표준공수 35건  10. 예산 20건
     }
 }
@@ -215,7 +215,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ```
 COST-STAFF:  SUM(timesheet.hours × employee.hourlyRate) GROUP BY employee
-COST-PROJECT: directLabor + outsourcing + allocatedOverhead
+COST-PROJECT: directLabor + projectDirectCost + allocatedOverhead
 COST-DEPT:   SUM(projectCost) GROUP BY department
 COST-TOTAL:  SUM(all) → costRate = totalCost / totalRevenue × 100
 ```
@@ -248,7 +248,7 @@ judgement = totalVariance > 0 ? "U" : "F"
 |---|---|---|
 | `/api/departments`, `/api/employees`, `/api/projects`, `/api/project-types`, `/api/job-grades` | organization | OrganizationQueryService |
 | `/api/timesheets` | timesheet | TimesheetService |
-| `/api/outsourcing-costs`, `/api/overhead-costs` | expense | ExpenseService |
+| `/api/project-direct-costs`, `/api/overhead-costs` | expense | ExpenseService |
 | `/api/budgets`, `/api/standard-costs` | budget | BudgetService |
 | `/api/analysis/cost/**` | analysis | CostAggregationService |
 | `/api/analysis/transfer/**` | analysis | TransferPricingService |

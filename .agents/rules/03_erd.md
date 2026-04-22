@@ -20,7 +20,7 @@ erDiagram
     project_types ||--o{ standard_costs : "표준공수"
     employees ||--o{ timesheets : "투입"
     projects ||--o{ timesheets : "투입대상"
-    projects ||--o{ outsourcing_costs : "외주발생"
+    projects ||--o{ project_direct_costs : "직접비발생"
     projects ||--o| budgets : "예산"
 
     departments {
@@ -64,14 +64,16 @@ erDiagram
         bigint id PK
         bigint employee_id FK
         bigint project_id FK
+        varchar activity_type "기획|개발|QA|PM 등"
         date work_date
         decimal hours "투입시간"
     }
 
-    outsourcing_costs {
+    project_direct_costs {
         bigint id PK
         bigint project_id FK
-        varchar vendor_name
+        varchar cost_type "외주비|출장비|구매비 등"
+        varchar vendor_name "거래처/지출처"
         varchar description
         bigint amount "금액(원)"
         date cost_date
@@ -177,18 +179,20 @@ erDiagram
 | id | BIGSERIAL | PK | |
 | employee_id | BIGINT | FK → employees | 투입 인력 |
 | project_id | BIGINT | FK → projects | 투입 프로젝트 |
+| activity_type | VARCHAR(50) | NOT NULL | 활동 유형 (기획, 개발, QA, 공통 등) |
 | work_date | DATE | NOT NULL | 작업일 |
 | hours | DECIMAL(5,1) | NOT NULL | 투입 시간 |
 
-> 원가 집계·차이 분석의 핵심 입력. 수정 시 모든 분석 결과가 연동 변경된다.
+> 원가 집계·차이 분석(ABC 기반)의 핵심 입력. 사내 공통 업무나 대기 시간은 '공통/사내 프로젝트'로 기록하여 유휴원가를 집계한다.
 
-#### outsourcing_costs (외주비)
+#### project_direct_costs (프로젝트 직접비)
 
 | 컬럼 | 타입 | 제약 | 설명 |
 |---|---|---|---|
 | id | BIGSERIAL | PK | |
 | project_id | BIGINT | FK → projects | 귀속 프로젝트 |
-| vendor_name | VARCHAR(200) | | 외주 업체명 |
+| cost_type | VARCHAR(50) | NOT NULL | 비용 유형 (외주비, 출장비, 인프라구매 등) |
+| vendor_name | VARCHAR(200) | | 거래처 / 지출처 |
 | description | VARCHAR(500) | | 내역 |
 | amount | BIGINT | NOT NULL | 금액 (원) |
 | cost_date | DATE | NOT NULL | 발생일 |
@@ -239,8 +243,8 @@ erDiagram
 | employees | 자동 생성 | ✅ | ❌ | ❌ | 기준 데이터 |
 | project_types | 자동 생성 | ✅ | ❌ | ❌ | 기준 데이터 |
 | projects | 자동 생성 | ✅ | ❌ | ❌ | 기준 데이터 |
-| **timesheets** | ✅ | ✅ | ✅ | ✅ | **핵심 거래 데이터** |
-| **outsourcing_costs** | ✅ | ✅ | ✅ | ✅ | 거래 데이터 |
+| **timesheets** | ✅ | ✅ | ✅ | ✅ | **핵심 거래 데이터 (ABC 원가동인)** |
+| **project_direct_costs** | ✅ | ✅ | ✅ | ✅ | 거래 데이터 (외주비, 직접경비) |
 | **overhead_costs** | ✅ | ✅ | ✅ | ✅ | 거래 데이터 |
 | **standard_costs** | 자동 생성 | ✅ | ✅ | ❌ | 표준공수 변경 → 차이분석 연동 |
 | **budgets** | ✅ | ✅ | ✅ | ✅ | 예산 관리 |
@@ -254,7 +258,7 @@ erDiagram
 | 분석 기능 | 사용 테이블 | 계산 방식 |
 |---|---|---|
 | **COST-STAFF** | timesheets + employees + job_grades | `SUM(hours × hourly_rate)` GROUP BY employee |
-| **COST-PROJECT** | timesheets + employees + outsourcing_costs + (배분된 overhead) | 직접인건비 + 외주비 + 배분 간접원가 |
+| **COST-PROJECT** | timesheets + employees + project_direct_costs + (배분된 overhead) | 직접인건비 + 직접경비(외주비등) + 배분 간접원가 |
 | **COST-DEPT** | 위 결과 GROUP BY department | 본부 소속 프로젝트 원가 합산 |
 | **COST-TOTAL** | 위 결과 전체 합산 + projects.contract_amount | 원가율 = 총원가 / 총매출 |
 | **TRANSFER-SIM** | overhead_costs + departments + (Driver 선택) | Cost Pool × Driver 비율 |
@@ -278,7 +282,7 @@ erDiagram
 | project_types | 7 | SI대형/중형, 패키지, SM, 운영대행, ISP/BPR, PMO |
 | projects | 20 | 본부당 4~8개 |
 | timesheets | ~4,800 | 80명 × 약 60일(3개월) |
-| outsourcing_costs | ~30 | SI/패키지 프로젝트 위주 |
+| project_direct_costs | ~50 | 외주비 및 프로젝트 직접경비 내역 |
 | overhead_costs | ~12 | 지원 2본부 × 2비목 × 3개월 |
 | standard_costs | ~35 | 7유형 × 5직급 |
 | budgets | 20 | 프로젝트당 1건 |
