@@ -19,36 +19,61 @@
 | 계층 | 기술 |
 |---|---|
 | Frontend | Next.js 14 (TypeScript) + Recharts |
-| Backend | Spring Boot 3.x (Java 21) + JPA |
+| Backend | Spring Boot 3.4 (Java 21) + JPA |
 | Database | PostgreSQL 17 |
 | Infra | Docker Compose, GitHub Actions CI/CD |
 
-## 운영 환경
+## 프로젝트 구조
 
-- 5개 본부 (수익 3 + 지원 2)
-- 20개 프로젝트 동시 수행
-- 80명 인력 Mock Data
+```
+costpilot/
+├── .agents/rules/          # 설계 문서 (6개)
+│   ├── 01_project_plan.md
+│   ├── 02_requirements_spec.md
+│   ├── 03_erd.md
+│   ├── 04_api_spec.md
+│   ├── 05_backend_architecture.md
+│   └── 06_frontend_architecture.md
+├── backend/                # Spring Boot API 서버
+│   ├── src/main/java/com/costpilot/
+│   ├── build.gradle
+│   └── Dockerfile
+├── frontend/               # Next.js 대시보드
+│   ├── src/app/            # 9개 페이지 (App Router)
+│   ├── src/components/     # 공통 UI 컴포넌트
+│   ├── src/lib/            # API, 포맷, 상수
+│   ├── package.json
+│   └── Dockerfile
+├── docker-compose.yml      # 운영 배포
+├── docker-compose.local.yml # 로컬 개발
+├── docker-compose.override.yml # 로컬 포트 개방
+└── .github/workflows/      # CI/CD
+```
 
 ## 실행 방법
+
+### 로컬 개발
 
 ```bash
 # 1. 환경변수 설정
 cp .env.example .env
 # .env 파일의 DB_USERNAME, DB_PASSWORD 등을 수정
 
-# 2. 실행
+# 2. 로컬 개발 모드 (소스 Volume Mount)
+docker compose -f docker-compose.local.yml up -d
+
+# 접속: http://localhost:3033
+```
+
+### 프로덕션 배포
+
+```bash
 docker compose up --build -d
+```
 
+## 운영 환경 (Mock Data)
 
-costpilot/
-├── .agents/rules/          # 설계 문서
-│   ├── 01_project_plan.md
-│   ├── 02_requirements_spec.md
-│   ├── 03_erd.md
-│   └── 04_api_spec.md
-├── backend/                # Spring Boot API 서버
-├── frontend/               # Next.js 대시보드
-├── docker-compose.yml      # 운영 배포
-├── docker-compose.local.yml # 로컬 개발
-└── .github/workflows/      # CI/CD
-
+- 5개 본부 (수익 3 + 지원 2)
+- 20개 프로젝트 동시 수행
+- 80명 인력
+- 2026년 1분기 데이터
