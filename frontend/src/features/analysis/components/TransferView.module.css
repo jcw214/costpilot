@@ -4,13 +4,21 @@
   gap: 1.5rem;
 }
 
-/* ─── 가격 정책 선택 버튼 ─── */
+/* ─── 섹션 라벨 ─── */
+.sectionLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary, #9CA3AF);
+  margin-bottom: -0.75rem;
+}
+
+/* ─── 가격 정책 / 배부 기준 버튼 ─── */
 .methodGroup {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
 }
-.methodBtn {
+.methodBtn, .driverBtn {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -22,7 +30,7 @@
   text-align: left;
   transition: border-color 0.2s, transform 0.15s;
 }
-.methodBtn:hover {
+.methodBtn:hover, .driverBtn:hover {
   border-color: #3B82F6;
   transform: translateY(-1px);
 }
@@ -30,6 +38,11 @@
   border-color: #3B82F6 !important;
   background: rgba(59, 130, 246, 0.1);
   box-shadow: 0 0 0 1px #3B82F6;
+}
+.driverActive {
+  border-color: #8B5CF6 !important;
+  background: rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 0 1px #8B5CF6;
 }
 .methodLabel { font-weight: 600; font-size: 1rem; color: var(--text-primary, #F9FAFB); }
 .methodDesc { font-size: 0.8rem; color: var(--text-secondary, #9CA3AF); }
@@ -51,7 +64,17 @@
 .cardIcon { font-size: 1.75rem; }
 .cardTitle { font-weight: 600; font-size: 1.1rem; color: var(--text-primary, #F9FAFB); }
 .cardSub { font-size: 0.85rem; color: var(--text-secondary, #9CA3AF); margin-top: 0.15rem; }
+
+.badgeGroup { display: flex; gap: 0.4rem; }
 .pricingBadge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+  font-weight: 600;
+}
+.driverBadge {
   font-size: 0.75rem;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
@@ -83,7 +106,20 @@
   border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: 8px;
 }
+.allocHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .allocDept { font-size: 0.85rem; color: var(--text-secondary, #9CA3AF); }
+.allocRatio {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+}
 .allocAmt { font-size: 1.1rem; font-weight: 700; color: #10B981; }
 
 /* ─── 로딩 / 빈 상태 ─── */
