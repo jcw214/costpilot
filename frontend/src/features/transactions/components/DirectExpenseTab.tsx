@@ -17,7 +17,6 @@ export default function DirectExpenseTab() {
   }, []);
 
   const columns: Column<DirectExpense>[] = [
-    { key: 'id', label: 'ID', width: '80px' },
     { key: 'projectName', label: '프로젝트' },
     { key: 'costType', label: '비용 유형' },
     { key: 'vendorName', label: '업체명' },

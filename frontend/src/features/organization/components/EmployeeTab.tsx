@@ -31,7 +31,6 @@ export default function EmployeeTab() {
   useEffect(() => { load(); }, [load]);
 
   const columns: Column<Employee>[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center' },
     { key: 'name', label: '이름' },
     { key: 'departmentName', label: '소속 본부' },
     { key: 'jobGradeCode', label: '직급코드', width: '80px', align: 'center' },

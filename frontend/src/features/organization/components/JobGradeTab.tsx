@@ -34,7 +34,6 @@ export default function JobGradeTab() {
   };
 
   const columns: Column<JobGrade>[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center' },
     {
       key: 'code', label: '코드', width: '80px', align: 'center',
       render: (val) => <span style={{ fontWeight: 600 }}>{val as string}</span>,

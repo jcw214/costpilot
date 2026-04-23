@@ -17,7 +17,6 @@ export default function OverheadExpenseTab() {
   }, []);
 
   const columns: Column<OverheadExpense>[] = [
-    { key: 'id', label: 'ID', width: '80px' },
     { key: 'departmentName', label: '지원본부명' },
     { key: 'costCategory', label: '비용 유형' },
     { key: 'amount', label: '금액', render: (val: unknown) => formatKRW(val as number) },

@@ -23,7 +23,6 @@ export default function DepartmentTab() {
   useEffect(() => { load(); }, [load]);
 
   const columns: Column<Department>[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center' },
     { key: 'name', label: '본부명' },
     {
       key: 'type', label: '유형', width: '100px', align: 'center',

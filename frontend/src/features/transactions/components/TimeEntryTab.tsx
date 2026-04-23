@@ -16,7 +16,6 @@ export default function TimeEntryTab() {
   }, []);
 
   const columns: Column<TimeEntry>[] = [
-    { key: 'id', label: 'ID', width: '80px' },
     { key: 'employeeName', label: '직원명' },
     { key: 'projectName', label: '프로젝트' },
     { key: 'activityType', label: '활동 유형' },

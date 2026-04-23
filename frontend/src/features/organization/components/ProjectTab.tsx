@@ -30,7 +30,6 @@ export default function ProjectTab() {
   useEffect(() => { load(); }, [load]);
 
   const columns: Column<Project>[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center' },
     { key: 'name', label: '프로젝트명' },
     { key: 'departmentName', label: '소속 본부', width: '140px' },
     { key: 'projectTypeName', label: '유형', width: '160px' },

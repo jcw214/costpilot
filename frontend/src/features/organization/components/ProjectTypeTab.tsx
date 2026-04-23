@@ -17,7 +17,6 @@ export default function ProjectTypeTab() {
   }, []);
 
   const columns: Column<ProjectType>[] = [
-    { key: 'id', label: 'ID', width: '60px', align: 'center' },
     { key: 'name', label: '유형명' },
   ];
 
