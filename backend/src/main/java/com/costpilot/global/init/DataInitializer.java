@@ -39,28 +39,37 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (departmentRepository.count() > 0) {
-            log.info("데이터가 이미 존재합니다. 초기화를 건너뜁니다.");
-            return;
+        if (departmentRepository.count() == 0) {
+            List<Department> departments = initDepartments();
+            List<JobGrade> jobGrades = initJobGrades();
+            List<ProjectType> projectTypes = initProjectTypes();
+            List<Employee> employees = initEmployees(departments, jobGrades);
+            List<Project> projects = initProjects(departments, projectTypes);
         }
-        log.info("=== Mock Data 초기화 시작 ===");
 
-        List<Department> departments = initDepartments();
-        List<JobGrade> jobGrades = initJobGrades();
-        List<ProjectType> projectTypes = initProjectTypes();
-        List<Employee> employees = initEmployees(departments, jobGrades);
-        List<Project> projects = initProjects(departments, projectTypes);
+        List<Department> departments = departmentRepository.findAll();
+        List<JobGrade> jobGrades = jobGradeRepository.findAll();
+        List<ProjectType> projectTypes = projectTypeRepository.findAll();
+        List<Employee> employees = employeeRepository.findAll();
+        List<Project> projects = projectRepository.findAll();
 
-        initStandardCostRates(projectTypes, jobGrades);
-        initBudgetPlans(projects);
-        initOverheadExpenses(departments);
-        initDirectExpenses(projects);
-        initTimeEntries(employees, projects);
+        if (standardCostRateRepository.count() == 0) {
+            initStandardCostRates(projectTypes, jobGrades);
+        }
+        if (budgetPlanRepository.count() == 0) {
+            initBudgetPlans(projects);
+        }
+        if (overheadExpenseRepository.count() == 0) {
+            initOverheadExpenses(departments);
+        }
+        if (directExpenseRepository.count() == 0) {
+            initDirectExpenses(projects);
+        }
+        if (timeEntryRepository.count() == 0) {
+            initTimeEntries(employees, projects);
+        }
 
         log.info("=== Mock Data 초기화 완료 ===");
-        log.info("본부: {}개, 직급: {}개, 프로젝트유형: {}개, 인력: {}명, 프로젝트: {}개",
-                departments.size(), jobGrades.size(), projectTypes.size(),
-                employees.size(), projects.size());
     }
 
     // ── 1. 본부 5개 (수익 3 + 지원 2) ─────────────────────────────
