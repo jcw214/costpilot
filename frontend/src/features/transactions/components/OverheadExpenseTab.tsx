@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DataTable from '@/components/ui/DataTable';
+import DataTable, { Column } from '@/components/ui/DataTable';
 import { transactionApi } from '../api';
 import { OverheadExpense } from '../types';
 import { formatKRW } from '@/lib/format';
@@ -16,11 +16,11 @@ export default function OverheadExpenseTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  const columns = [
+  const columns: Column<OverheadExpense>[] = [
     { key: 'id', label: 'ID', width: '80px' },
     { key: 'departmentName', label: '지원본부명' },
     { key: 'costCategory', label: '비용 유형' },
-    { key: 'amount', label: '금액', render: (val: any) => formatKRW(val) },
+    { key: 'amount', label: '금액', render: (val: unknown) => formatKRW(val as number) },
     { key: 'costMonth', label: '발생 월' },
   ];
 

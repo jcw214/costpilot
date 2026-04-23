@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import DataTable from '@/components/ui/DataTable';
+import DataTable, { Column } from '@/components/ui/DataTable';
 import { transactionApi } from '../api';
 import { DirectExpense } from '../types';
 import { formatKRW } from '@/lib/format';
@@ -16,12 +16,12 @@ export default function DirectExpenseTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  const columns = [
+  const columns: Column<DirectExpense>[] = [
     { key: 'id', label: 'ID', width: '80px' },
     { key: 'projectName', label: '프로젝트' },
     { key: 'costType', label: '비용 유형' },
     { key: 'vendorName', label: '업체명' },
-    { key: 'amount', label: '금액', render: (val: any) => formatKRW(val) },
+    { key: 'amount', label: '금액', render: (val: unknown) => formatKRW(val as number) },
     { key: 'costDate', label: '발생 일자' },
   ];
 
