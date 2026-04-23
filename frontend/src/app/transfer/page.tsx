@@ -1,3 +1,5 @@
+import TransferView from '@/features/analysis/components/TransferView';
+
 export default function TransferPage() {
   return (
     <>
@@ -6,10 +8,7 @@ export default function TransferPage() {
         <p className="page-subtitle">지원본부 Cost Pool의 원가/시장가/협의가 기준 배부 시뮬레이션</p>
       </div>
       <div className="chart-container">
-        <div className="placeholder">
-          <span className="placeholder-icon">🔄</span>
-          <span>내부대체가액 시뮬레이션 — 구현 예정</span>
-        </div>
+        <TransferView />
       </div>
     </>
   );
