@@ -11,6 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.*;
 
+import com.costpilot.timesheet.domain.*;
+import com.costpilot.timesheet.adapter.persistence.*;
+import com.costpilot.expense.domain.*;
+import com.costpilot.expense.adapter.persistence.*;
+import com.costpilot.budget.domain.*;
+import com.costpilot.budget.adapter.persistence.*;
+import java.math.BigDecimal;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -21,6 +29,12 @@ public class DataInitializer implements CommandLineRunner {
     private final ProjectTypeRepository projectTypeRepository;
     private final EmployeeRepository employeeRepository;
     private final ProjectRepository projectRepository;
+
+    private final JpaTimeEntryRepository timeEntryRepository;
+    private final JpaDirectExpenseRepository directExpenseRepository;
+    private final JpaOverheadExpenseRepository overheadExpenseRepository;
+    private final JpaStandardCostRateRepository standardCostRateRepository;
+    private final JpaBudgetPlanRepository budgetPlanRepository;
 
     @Override
     @Transactional
@@ -36,6 +50,12 @@ public class DataInitializer implements CommandLineRunner {
         List<ProjectType> projectTypes = initProjectTypes();
         List<Employee> employees = initEmployees(departments, jobGrades);
         List<Project> projects = initProjects(departments, projectTypes);
+
+        initStandardCostRates(projectTypes, jobGrades);
+        initBudgetPlans(projects);
+        initOverheadExpenses(departments);
+        initDirectExpenses(projects);
+        initTimeEntries(employees, projects);
 
         log.info("=== Mock Data 초기화 완료 ===");
         log.info("본부: {}개, 직급: {}개, 프로젝트유형: {}개, 인력: {}명, 프로젝트: {}개",
@@ -193,6 +213,126 @@ public class DataInitializer implements CommandLineRunner {
                 ProjectStatus.완료, 200_000_000L, "2025-10-01", "2026-02-28"));
 
         return projectRepository.saveAll(projects);
+    }
+
+    // ── 6. 표준공수 35건 (7유형 × 5직급) ─────────────────────────────
+    private void initStandardCostRates(List<ProjectType> projectTypes, List<JobGrade> jobGrades) {
+        List<StandardCostRate> rates = new ArrayList<>();
+        Random random = new Random(42);
+        for (ProjectType pt : projectTypes) {
+            for (JobGrade jg : jobGrades) {
+                BigDecimal hours = BigDecimal.valueOf(100 + random.nextInt(400));
+                rates.add(StandardCostRate.builder()
+                        .projectType(pt)
+                        .jobGrade(jg)
+                        .standardHours(hours)
+                        .build());
+            }
+        }
+        standardCostRateRepository.saveAll(rates);
+    }
+
+    // ── 7. 예산 20건 (프로젝트당 1건) ──────────────────────────────
+    private void initBudgetPlans(List<Project> projects) {
+        List<BudgetPlan> budgets = new ArrayList<>();
+        Random random = new Random(42);
+        for (Project p : projects) {
+            double ratio = 0.7 + (random.nextDouble() * 0.2);
+            long budgetAmt = (long) (p.getContractAmount() * ratio);
+            budgets.add(BudgetPlan.builder()
+                    .project(p)
+                    .budgetAmount(budgetAmt)
+                    .fiscalYear(2026)
+                    .fiscalQuarter(1)
+                    .build());
+        }
+        budgetPlanRepository.saveAll(budgets);
+    }
+
+    // ── 8. 간접비 ~12건 (지원 2본부 × 2비목 × 3개월) ──────────────────
+    private void initOverheadExpenses(List<Department> departments) {
+        List<OverheadExpense> overheads = new ArrayList<>();
+        Random random = new Random(42);
+        String[] categories = {"인건비", "운영비"};
+        String[] months = {"2026-01-01", "2026-02-01", "2026-03-01"};
+
+        for (Department dept : departments) {
+            if (dept.getType() == DepartmentType.지원) {
+                for (String month : months) {
+                    for (String category : categories) {
+                        long amount = 10_000_000L + random.nextInt(20_000_000);
+                        overheads.add(OverheadExpense.builder()
+                                .department(dept)
+                                .costCategory(category)
+                                .amount(amount)
+                                .costMonth(LocalDate.parse(month))
+                                .build());
+                    }
+                }
+            }
+        }
+        overheadExpenseRepository.saveAll(overheads);
+    }
+
+    // ── 9. 프로젝트 직접비 ~50건 ───────────────────────────────────
+    private void initDirectExpenses(List<Project> projects) {
+        List<DirectExpense> expenses = new ArrayList<>();
+        Random random = new Random(42);
+        String[] types = {"외주비", "출장비", "인프라구매"};
+
+        for (Project p : projects) {
+            int count = 1 + random.nextInt(4);
+            for (int i = 0; i < count; i++) {
+                String type = types[random.nextInt(types.length)];
+                long amount = 1_000_000L + random.nextInt(10_000_000);
+                expenses.add(DirectExpense.builder()
+                        .project(p)
+                        .costType(type)
+                        .vendorName("업체" + random.nextInt(100))
+                        .description(type + " 지출")
+                        .amount(amount)
+                        .costDate(p.getStartDate().plusDays(random.nextInt(30)))
+                        .build());
+            }
+        }
+        directExpenseRepository.saveAll(expenses);
+    }
+
+    // ── 10. 공수 ~4,800건 (80명 × 약 60일) ────────────────────────
+    private void initTimeEntries(List<Employee> employees, List<Project> projects) {
+        List<TimeEntry> entries = new ArrayList<>();
+        Random random = new Random(42);
+        String[] activities = {"개발", "기획", "QA", "PM", "공통"};
+
+        LocalDate start = LocalDate.of(2026, 1, 1);
+        LocalDate end = LocalDate.of(2026, 3, 31);
+
+        for (Employee emp : employees) {
+            List<Project> deptProjects = projects.stream()
+                    .filter(p -> p.getDepartment().getId().equals(emp.getDepartment().getId()))
+                    .toList();
+
+            if (deptProjects.isEmpty()) {
+                // 지원본부 인원은 가상의 지원 프로젝트 또는 제외 (여기서는 빈 배열로 스킵)
+                continue;
+            }
+
+            for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+                if (date.getDayOfWeek().getValue() >= 6) continue;
+
+                Project p = deptProjects.get(random.nextInt(deptProjects.size()));
+                String activity = activities[random.nextInt(activities.length)];
+
+                entries.add(TimeEntry.builder()
+                        .employee(emp)
+                        .project(p)
+                        .activityType(activity)
+                        .workDate(date)
+                        .hours(BigDecimal.valueOf(8.0))
+                        .build());
+            }
+        }
+        timeEntryRepository.saveAll(entries);
     }
 
     // ── Helper ──────────────────────────────────────────────────
