@@ -2,6 +2,7 @@ package com.costpilot.analysis.adapter.web;
 
 import com.costpilot.analysis.adapter.web.dto.CostAggregationResponse;
 import com.costpilot.analysis.adapter.web.dto.TransferPricingResponse;
+import com.costpilot.analysis.domain.CostDriver;
 import com.costpilot.analysis.domain.PricingMethod;
 import com.costpilot.analysis.port.in.AnalysisUseCase;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,8 @@ public class AnalysisController {
 
     @GetMapping("/transfer")
     public ResponseEntity<List<TransferPricingResponse>> getTransferPricing(
-            @RequestParam(defaultValue = "COST") PricingMethod method) {
-        return ResponseEntity.ok(analysisUseCase.calculateTransferPricing(method));
+            @RequestParam(defaultValue = "COST") PricingMethod method,
+            @RequestParam(defaultValue = "HEADCOUNT") CostDriver driver) {
+        return ResponseEntity.ok(analysisUseCase.calculateTransferPricing(method, driver));
     }
 }

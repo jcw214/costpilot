@@ -27,6 +27,7 @@ export interface CostAggregation {
 // ── M2: 내부대체가액 ──────────────────────────────────────
 export interface Allocation {
   revenueDepartmentName: string;
+  driverRatio: number;
   allocatedAmount: number;
 }
 
@@ -34,7 +35,9 @@ export interface TransferPricing {
   supportDepartmentName: string;
   totalOverheadCost: number;
   pricingMethod: string;
+  costDriver: string;
   allocations: Allocation[];
 }
 
 export type PricingMethod = 'COST' | 'MARKET' | 'NEGOTIATED';
+export type CostDriver = 'HEADCOUNT' | 'REVENUE' | 'LABOR_HOURS';
