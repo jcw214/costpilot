@@ -1,0 +1,59 @@
+.container { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* ─── 탭 ─── */
+.tabGroup { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.tab {
+  padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid var(--border, #374151);
+  background: var(--bg-card, #1F2937); color: var(--text-secondary, #9CA3AF);
+  cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+}
+.tab:hover { border-color: #3B82F6; }
+.tabActive { border-color: #3B82F6 !important; background: rgba(59,130,246,0.1); color: var(--text-primary, #F9FAFB); box-shadow: 0 0 0 1px #3B82F6; }
+
+/* ─── 테이블 ─── */
+.tableWrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border, #374151); }
+.table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.table thead { background: rgba(59,130,246,0.06); }
+.table th { padding: 0.7rem 1rem; text-align: left; font-weight: 600; color: var(--text-secondary, #9CA3AF); border-bottom: 1px solid var(--border, #374151); white-space: nowrap; }
+.table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border, #1F2937); color: var(--text-primary, #F9FAFB); }
+.table tbody tr:hover { background: rgba(59,130,246,0.04); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.bold { font-weight: 700; }
+
+/* ─── 유리/불리 ─── */
+.favorable { color: #10B981; }
+.unfavorable { color: #EF4444; }
+.verdict { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.verdictF { background: rgba(16,185,129,0.15); color: #34D399; }
+.verdictU { background: rgba(239,68,68,0.15); color: #F87171; }
+
+/* ─── 간접원가 카드 그리드 ─── */
+.ohGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+.ohCard {
+  background: var(--bg-card, #1F2937); border: 1px solid var(--border, #374151);
+  border-radius: 10px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem;
+}
+.ohLabel { font-size: 0.8rem; color: var(--text-secondary, #9CA3AF); font-weight: 500; }
+.ohValue { font-size: 1.3rem; font-weight: 700; color: var(--text-primary, #F9FAFB); }
+.ohDivider {
+  grid-column: 1 / -1; text-align: center; padding: 0.5rem 0;
+  color: var(--text-secondary, #6B7280); font-size: 0.9rem; letter-spacing: 0.15em;
+}
+.ohTotal { grid-column: 1 / -1; border-color: #3B82F6; background: rgba(59,130,246,0.06); }
+
+/* ─── 예산 게이지 ─── */
+.gauge { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+.gaugeBar { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.gaugeOk { background: linear-gradient(90deg, #10B981, #34D399); }
+.gaugeWarn { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+.gaugeOver { background: linear-gradient(90deg, #EF4444, #F87171); }
+.statusBadge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.statusOk { background: rgba(16,185,129,0.15); color: #34D399; }
+.statusWarn { background: rgba(245,158,11,0.15); color: #FBBF24; }
+.statusOver { background: rgba(239,68,68,0.15); color: #F87171; }
+
+/* ─── 로딩 / 빈 상태 ─── */
+.loading { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 4rem; color: var(--text-secondary, #9CA3AF); }
+.spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.15); border-top-color: #3B82F6; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 4rem; color: var(--text-secondary, #9CA3AF); }
