@@ -93,20 +93,32 @@ frontend/
 │   └── favicon.ico
 │
 └── src/
-    ├── app/                          ← App Router
+    ├── app/                          ← App Router (라우팅 얇은 진입점)
     │   ├── layout.tsx                ← 루트 레이아웃 (사이드바 + 콘텐츠)
     │   ├── page.tsx                  ← 전사 요약 (홈)
-    │   ├── cost/page.tsx             ← 원가 집계
-    │   ├── transfer/page.tsx         ← 내부대체가액
-    │   ├── standard/page.tsx         ← 표준원가 배분
-    │   ├── variance/page.tsx         ← 원가 요인 분석
-    │   ├── performance/page.tsx      ← 성과 요인 분석
-    │   ├── master/page.tsx           ← 기준 데이터
-    │   ├── transaction/page.tsx      ← 거래 데이터
-    │   ├── settings/page.tsx         ← 설정
+    │   ├── cost/page.tsx             
+    │   ├── transfer/page.tsx         
+    │   ├── standard/page.tsx         
+    │   ├── variance/page.tsx         
+    │   ├── performance/page.tsx      
+    │   ├── master/page.tsx           ← 기준 데이터 (기능은 features에 위임)
+    │   ├── transaction/page.tsx      
+    │   ├── settings/page.tsx         
     │   └── globals.css
     │
-    ├── components/                   ← 공통 UI 컴포넌트
+    ├── features/                     ← 도메인 중심 모듈 ⭐
+    │   ├── organization/             ← 조직 도메인
+    │   │   ├── types.ts              ← 모델 타입 정의
+    │   │   ├── api.ts                ← API 래퍼
+    │   │   ├── MasterView.tsx        ← 페이지 복합 뷰
+    │   │   └── components/           ← 도메인 종속 컴포넌트
+    │   │       ├── DepartmentTab.tsx
+    │   │       └── ...
+    │   ├── timesheet/
+    │   ├── expense/
+    │   └── analysis/
+    │
+    ├── components/                   ← 도메인 무관 공통 UI
     │   ├── layout/
     │   │   ├── Sidebar.tsx
     │   │   ├── Header.tsx
@@ -120,23 +132,12 @@ frontend/
     │   │   └── Badge.tsx
     │   └── charts/
     │       ├── StackedBarChart.tsx
-    │       ├── GroupedBarChart.tsx
-    │       ├── HorizontalBarChart.tsx
-    │       ├── WaterfallChart.tsx
-    │       ├── DivergingBarChart.tsx
-    │       ├── PieDonutChart.tsx
-    │       └── ScatterChart.tsx
+    │       └── ...
     │
-    ├── lib/                          ← 유틸리티
-    │   ├── api.ts                    ← Backend API 호출 래퍼
-    │   ├── format.ts                 ← 금액 포맷 (천 단위 쉼표)
-    │   └── constants.ts              ← 색상 팔레트, 경로 상수
-    │
-    └── types/                        ← TypeScript 타입 정의
-        ├── organization.ts
-        ├── transaction.ts
-        ├── analysis.ts
-        └── common.ts
+    └── lib/                          ← 공통 유틸리티
+        ├── api.ts                    ← Backend API 호출 래퍼
+        ├── format.ts                 ← 금액 포맷 (천 단위 쉼표)
+        └── constants.ts              ← 색상 팔레트, 경로 상수
 ```
 
 ---
