@@ -16,12 +16,12 @@ export default function TimeEntryTab() {
   }, []);
 
   const columns = [
-    { key: 'id', header: 'ID', width: '80px' },
-    { key: 'employeeName', header: '직원명' },
-    { key: 'projectName', header: '프로젝트' },
-    { key: 'activityType', header: '활동 유형' },
-    { key: 'workDate', header: '근무 일자' },
-    { key: 'hours', header: '투입 시간', render: (val: number) => val.toFixed(1) },
+    { key: 'id', label: 'ID', width: '80px' },
+    { key: 'employeeName', label: '직원명' },
+    { key: 'projectName', label: '프로젝트' },
+    { key: 'activityType', label: '활동 유형' },
+    { key: 'workDate', label: '근무 일자' },
+    { key: 'hours', label: '투입 시간', render: (val: any) => val.toFixed(1) },
   ];
 
   return <DataTable data={data} columns={columns} loading={loading} />;

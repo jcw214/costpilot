@@ -10,14 +10,14 @@ export default function TransactionView() {
   const [activeTab, setActiveTab] = useState('timesheets');
 
   const tabs = [
-    { id: 'timesheets', label: '투입 공수' },
-    { id: 'direct-costs', label: '직접경비(외주비 등)' },
-    { id: 'overhead-costs', label: '간접경비(운영비 등)' },
+    { key: 'timesheets', label: '투입 공수' },
+    { key: 'direct-costs', label: '직접경비(외주비 등)' },
+    { key: 'overhead-costs', label: '간접경비(운영비 등)' },
   ];
 
   return (
     <div>
-      <TabGroup tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+      <TabGroup tabs={tabs} activeKey={activeTab} onChange={setActiveTab} />
       
       <div style={{ marginTop: '1.5rem' }}>
         {activeTab === 'timesheets' && <TimeEntryTab />}

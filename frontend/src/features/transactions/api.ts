@@ -1,8 +1,8 @@
-import { apiClient } from '@/lib/api';
+import { fetchApi } from '@/lib/api';
 import { TimeEntry, DirectExpense, OverheadExpense } from './types';
 
 export const transactionApi = {
-  getTimeEntries: () => apiClient.get<TimeEntry[]>('/timesheets'),
-  getDirectExpenses: () => apiClient.get<DirectExpense[]>('/project-direct-costs'),
-  getOverheadExpenses: () => apiClient.get<OverheadExpense[]>('/overhead-costs'),
+  getTimeEntries: () => fetchApi<TimeEntry[]>('/timesheets'),
+  getDirectExpenses: () => fetchApi<DirectExpense[]>('/project-direct-costs'),
+  getOverheadExpenses: () => fetchApi<OverheadExpense[]>('/overhead-costs'),
 };

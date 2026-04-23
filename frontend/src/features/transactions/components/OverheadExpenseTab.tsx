@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import DataTable from '@/components/ui/DataTable';
 import { transactionApi } from '../api';
 import { OverheadExpense } from '../types';
-import { formatCurrency } from '@/lib/format';
+import { formatKRW } from '@/lib/format';
 
 export default function OverheadExpenseTab() {
   const [data, setData] = useState<OverheadExpense[]>([]);
@@ -17,11 +17,11 @@ export default function OverheadExpenseTab() {
   }, []);
 
   const columns = [
-    { key: 'id', header: 'ID', width: '80px' },
-    { key: 'departmentName', header: '지원본부명' },
-    { key: 'costCategory', header: '비용 유형' },
-    { key: 'amount', header: '금액', render: (val: number) => formatCurrency(val) },
-    { key: 'costMonth', header: '발생 월' },
+    { key: 'id', label: 'ID', width: '80px' },
+    { key: 'departmentName', label: '지원본부명' },
+    { key: 'costCategory', label: '비용 유형' },
+    { key: 'amount', label: '금액', render: (val: any) => formatKRW(val) },
+    { key: 'costMonth', label: '발생 월' },
   ];
 
   return <DataTable data={data} columns={columns} loading={loading} />;
