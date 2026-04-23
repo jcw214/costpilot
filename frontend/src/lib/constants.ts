@@ -15,7 +15,7 @@ export const COLORS = {
 
 /** 네비게이션 메뉴 */
 export const NAV_ITEMS = [
-  { label: '전사 요약', href: '/', icon: '📊' },
+  { label: '대시보드', href: '/', icon: '📊' },
   { label: '원가 집계', href: '/cost', icon: '💰' },
   { label: '내부대체가액', href: '/transfer', icon: '🔄' },
   { label: '표준원가 배분', href: '/standard', icon: '📐' },

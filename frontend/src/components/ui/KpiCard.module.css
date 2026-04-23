@@ -1,0 +1,24 @@
+.card {
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: var(--radius, 12px);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: var(--shadow, 0 1px 3px rgba(0,0,0,0.06));
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.top { display: flex; align-items: center; gap: 0.5rem; }
+.icon { font-size: 1.25rem; }
+.label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary, #64748b); text-transform: uppercase; letter-spacing: 0.03em; }
+.value { font-size: 1.75rem; font-weight: 800; color: var(--text-primary, #1e293b); font-variant-numeric: tabular-nums; }
+.bottom { display: flex; align-items: center; gap: 0.75rem; }
+.sub { font-size: 0.75rem; color: var(--text-muted, #94a3b8); }
+.trend { font-size: 0.75rem; font-weight: 600; }
+.trendUp { color: #EF4444; }
+.trendDown { color: #10B981; }
