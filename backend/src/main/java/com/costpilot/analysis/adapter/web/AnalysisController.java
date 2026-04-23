@@ -1,7 +1,9 @@
 package com.costpilot.analysis.adapter.web;
 
 import com.costpilot.analysis.adapter.web.dto.CostAggregationResponse;
+import com.costpilot.analysis.adapter.web.dto.StandardCostResponse;
 import com.costpilot.analysis.adapter.web.dto.TransferPricingResponse;
+import com.costpilot.analysis.adapter.web.dto.VarianceAnalysisResponse;
 import com.costpilot.analysis.domain.CostDriver;
 import com.costpilot.analysis.domain.PricingMethod;
 import com.costpilot.analysis.port.in.AnalysisUseCase;
@@ -31,5 +33,16 @@ public class AnalysisController {
             @RequestParam(defaultValue = "COST") PricingMethod method,
             @RequestParam(defaultValue = "HEADCOUNT") CostDriver driver) {
         return ResponseEntity.ok(analysisUseCase.calculateTransferPricing(method, driver));
+    }
+
+    @GetMapping("/standard")
+    public ResponseEntity<StandardCostResponse> getStandardCost(
+            @RequestParam(defaultValue = "HEADCOUNT") CostDriver driver) {
+        return ResponseEntity.ok(analysisUseCase.getStandardCostAnalysis(driver));
+    }
+
+    @GetMapping("/variance")
+    public ResponseEntity<VarianceAnalysisResponse> getVarianceAnalysis() {
+        return ResponseEntity.ok(analysisUseCase.getVarianceAnalysis());
     }
 }
