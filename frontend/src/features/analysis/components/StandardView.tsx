@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { getStandardCost } from '../api';
-import type { StandardCostData, CostDriver } from '../types';
+import type { StandardCostData, StandardRate, ProjectAllocation, ProjectComparison, CostDriver } from '../types';
 import { formatKRW } from '@/lib/format';
+import SortableTable, { type Column } from '@/components/ui/SortableTable';
 import styles from './StandardView.module.css';
 
 type Tab = 'rates' | 'alloc' | 'compare';
@@ -18,6 +19,44 @@ const DRIVER_OPTIONS: { key: CostDriver; label: string }[] = [
   { key: 'HEADCOUNT', label: '인원수' },
   { key: 'REVENUE', label: '매출액' },
   { key: 'LABOR_HOURS', label: '투입공수' },
+];
+
+const RATE_COLS: Column<StandardRate>[] = [
+  { key: 'type', label: '프로젝트 유형', render: (r) => r.projectTypeName, sortValue: (r) => r.projectTypeName },
+  { key: 'grade', label: '직급', render: (r) => r.jobGradeName, sortValue: (r) => r.jobGradeName },
+  { key: 'hourlyRate', label: '표준시급', align: 'right', render: (r) => formatKRW(r.standardHourlyRate), sortValue: (r) => r.standardHourlyRate },
+  { key: 'hours', label: '표준공수(h)', align: 'right', render: (r) => r.standardHours.toFixed(0), sortValue: (r) => r.standardHours },
+  { key: 'cost', label: '표준원가', align: 'right', render: (r) => formatKRW(r.standardCost), sortValue: (r) => r.standardCost },
+];
+
+const ALLOC_COLS: Column<ProjectAllocation>[] = [
+  { key: 'project', label: '프로젝트', render: (a) => a.projectName, sortValue: (a) => a.projectName },
+  { key: 'dept', label: '본부', render: (a) => a.departmentName, sortValue: (a) => a.departmentName },
+  { key: 'stdCost', label: '표준원가', align: 'right', render: (a) => formatKRW(a.standardCost), sortValue: (a) => a.standardCost },
+  { key: 'overhead', label: '배분 간접비', align: 'right', render: (a) => formatKRW(a.allocatedOverhead), sortValue: (a) => a.allocatedOverhead },
+  { key: 'total', label: '총 표준원가', align: 'right', render: (a) => <strong>{formatKRW(a.totalStandardCost)}</strong>, sortValue: (a) => a.totalStandardCost },
+];
+
+const COMPARE_COLS: Column<ProjectComparison>[] = [
+  { key: 'project', label: '프로젝트', render: (c) => c.projectName, sortValue: (c) => c.projectName },
+  { key: 'dept', label: '본부', render: (c) => c.departmentName, sortValue: (c) => c.departmentName },
+  { key: 'std', label: '표준원가', align: 'right', render: (c) => formatKRW(c.standardCost), sortValue: (c) => c.standardCost },
+  { key: 'actual', label: '실제원가', align: 'right', render: (c) => formatKRW(c.actualCost), sortValue: (c) => c.actualCost },
+  {
+    key: 'variance', label: '차이', align: 'right',
+    render: (c) => <span className={c.verdict === 'U' ? styles.unfavorable : styles.favorable}>{c.variance > 0 ? '+' : ''}{formatKRW(c.variance)}</span>,
+    sortValue: (c) => c.variance,
+  },
+  {
+    key: 'varianceRate', label: '차이율', align: 'right',
+    render: (c) => <span className={c.verdict === 'U' ? styles.unfavorable : styles.favorable}>{c.varianceRate > 0 ? '+' : ''}{c.varianceRate}%</span>,
+    sortValue: (c) => c.varianceRate,
+  },
+  {
+    key: 'verdict', label: '판정',
+    render: (c) => <span className={`${styles.verdict} ${c.verdict === 'U' ? styles.verdictU : styles.verdictF}`}>{c.verdict === 'U' ? '불리(U)' : '유리(F)'}</span>,
+    sortValue: (c) => c.verdict,
+  },
 ];
 
 export default function StandardView() {
@@ -59,96 +98,21 @@ export default function StandardView() {
       {/* 표준원가 기준 테이블 */}
       {tab === 'rates' && (
         <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>프로젝트 유형</th>
-                <th>직급</th>
-                <th>표준시급</th>
-                <th>표준공수(h)</th>
-                <th>표준원가</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.standardRates.map((r, i) => (
-                <tr key={i}>
-                  <td>{r.projectTypeName}</td>
-                  <td>{r.jobGradeName}</td>
-                  <td className={styles.num}>{formatKRW(r.standardHourlyRate)}</td>
-                  <td className={styles.num}>{r.standardHours.toFixed(0)}</td>
-                  <td className={styles.num}>{formatKRW(r.standardCost)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SortableTable columns={RATE_COLS} data={data.standardRates} rowKey={(_, i) => i} />
         </div>
       )}
 
       {/* 배분 결과 */}
       {tab === 'alloc' && (
         <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>프로젝트</th>
-                <th>본부</th>
-                <th>표준원가</th>
-                <th>배분 간접비</th>
-                <th>총 표준원가</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.projectAllocations.map((a, i) => (
-                <tr key={i}>
-                  <td>{a.projectName}</td>
-                  <td>{a.departmentName}</td>
-                  <td className={styles.num}>{formatKRW(a.standardCost)}</td>
-                  <td className={styles.num}>{formatKRW(a.allocatedOverhead)}</td>
-                  <td className={`${styles.num} ${styles.bold}`}>{formatKRW(a.totalStandardCost)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SortableTable columns={ALLOC_COLS} data={data.projectAllocations} rowKey={(_, i) => i} />
         </div>
       )}
 
       {/* 표준 vs 실제 비교 */}
       {tab === 'compare' && (
         <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>프로젝트</th>
-                <th>본부</th>
-                <th>표준원가</th>
-                <th>실제원가</th>
-                <th>차이</th>
-                <th>차이율</th>
-                <th>판정</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.comparisons.map((c, i) => (
-                <tr key={i}>
-                  <td>{c.projectName}</td>
-                  <td>{c.departmentName}</td>
-                  <td className={styles.num}>{formatKRW(c.standardCost)}</td>
-                  <td className={styles.num}>{formatKRW(c.actualCost)}</td>
-                  <td className={`${styles.num} ${c.verdict === 'U' ? styles.unfavorable : styles.favorable}`}>
-                    {c.variance > 0 ? '+' : ''}{formatKRW(c.variance)}
-                  </td>
-                  <td className={`${styles.num} ${c.verdict === 'U' ? styles.unfavorable : styles.favorable}`}>
-                    {c.varianceRate > 0 ? '+' : ''}{c.varianceRate}%
-                  </td>
-                  <td>
-                    <span className={`${styles.verdict} ${c.verdict === 'U' ? styles.verdictU : styles.verdictF}`}>
-                      {c.verdict === 'U' ? '불리(U)' : '유리(F)'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SortableTable columns={COMPARE_COLS} data={data.comparisons} rowKey={(_, i) => i} />
         </div>
       )}
     </div>
