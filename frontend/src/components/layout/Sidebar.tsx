@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { NAV_ITEMS, hasAccess } from '@/lib/constants';
+import { NAV_ITEMS } from '@/lib/constants';
 import { useAuth } from '@/lib/AuthContext';
 import styles from './Sidebar.module.css';
 
@@ -13,8 +13,6 @@ export default function Sidebar() {
   // 로그인 페이지에서는 사이드바 숨김
   if (pathname === '/login' || !user) return null;
 
-  const visibleItems = NAV_ITEMS.filter((item) => hasAccess(user.role, item.minRole));
-
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logo}>
@@ -22,7 +20,7 @@ export default function Sidebar() {
         <span className={styles.logoText}>CostPilot</span>
       </div>
       <nav className={styles.nav}>
-        {visibleItems.map((item) => (
+        {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
             href={item.href}

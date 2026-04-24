@@ -34,9 +34,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 // 헬스체크
                 .requestMatchers("/actuator/**").permitAll()
-                // 설정 변경은 ADMIN만
-                .requestMatchers(HttpMethod.PUT, "/api/job-grades/*/rate").hasAuthority("ROLE_ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/settings/**").hasAuthority("ROLE_ADMIN")
+                // [추후 확장 가능] 역할별 API 접근 제어
+                // .requestMatchers(HttpMethod.PUT, "/api/job-grades/*/rate").hasAuthority("ROLE_ADMIN")
+                // .requestMatchers(HttpMethod.PUT, "/api/settings/**").hasAuthority("ROLE_ADMIN")
                 // 나머지 API는 인증된 사용자
                 .requestMatchers("/api/**").authenticated()
                 // 정적 리소스 등은 허용
