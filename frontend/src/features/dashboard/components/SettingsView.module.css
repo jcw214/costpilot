@@ -4,7 +4,51 @@
   gap: 1.5rem;
 }
 
-/* Info Card */
+/* ── 탭 그룹 ────────────────────────────────── */
+.tabGroup {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-card);
+  padding: 4px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover { background: rgba(59, 130, 246, 0.05); color: var(--text-primary); }
+
+.tabActive {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
+
+.tabActive:hover { background: var(--accent); color: #fff; }
+
+.panelContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Info Card ───────────────────────────────── */
 .infoCard {
   display: flex;
   gap: 0.75rem;
@@ -20,7 +64,7 @@
 .infoDesc { font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; }
 .infoDesc strong { color: var(--accent); }
 
-/* Group Card */
+/* ── Group Card ──────────────────────────────── */
 .groupCard {
   background: var(--bg-card);
   border-radius: var(--radius);
@@ -61,7 +105,7 @@
   font-weight: 600;
 }
 
-/* Table */
+/* ── Table ────────────────────────────────────── */
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -120,7 +164,173 @@
   color: #7C3AED;
 }
 
-/* Share Bar */
+.codeBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.descCell {
+  max-width: 300px;
+}
+
+.descText {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ── Status Badge ────────────────────────────── */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.statusOn {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.statusOff {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6B7280;
+}
+
+/* ── Inline Edit ─────────────────────────────── */
+.editInput {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  outline: none;
+  transition: box-shadow 0.15s;
+}
+
+.editInput:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.toggleWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.toggleLabel {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.editActions {
+  display: flex;
+  gap: 4px;
+}
+
+.editBtn, .saveBtn, .cancelBtn, .confirmBtn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.editBtn {
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--accent);
+}
+.editBtn:hover { background: rgba(59, 130, 246, 0.15); }
+
+.saveBtn {
+  background: var(--accent);
+  color: #fff;
+}
+.saveBtn:hover { opacity: 0.9; }
+.saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cancelBtn {
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--text-secondary);
+}
+.cancelBtn:hover { background: rgba(107, 114, 128, 0.2); }
+
+.confirmBtn {
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 20px;
+}
+.confirmBtn:hover { opacity: 0.9; }
+.confirmBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Modal ────────────────────────────────────── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: scaleIn 0.2s ease;
+}
+
+.modalTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.modalDesc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ── Share Bar ────────────────────────────────── */
 .shareBar {
   position: relative;
   height: 20px;
@@ -150,7 +360,7 @@
   color: var(--text-primary);
 }
 
-/* Loading & Error */
+/* ── Loading & Error ──────────────────────────── */
 .loading {
   display: flex;
   align-items: center;
