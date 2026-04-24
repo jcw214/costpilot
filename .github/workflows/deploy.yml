@@ -29,6 +29,7 @@ jobs:
           [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
           [ -z "$SESSION_SECRET" ] && missing="$missing SESSION_SECRET"
           [ -z "$DB_USERNAME" ] && missing="$missing DB_USERNAME"
+          [ -z "$ADMIN_INIT_PASSWORD" ] && missing="$missing ADMIN_INIT_PASSWORD"
           if [ -n "$missing" ]; then
             echo "::error::Missing required secrets:$missing"
             exit 1
@@ -39,6 +40,7 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          ADMIN_INIT_PASSWORD: ${{ secrets.ADMIN_INIT_PASSWORD }}
 
       - name: Create .env file
         run: |
@@ -49,6 +51,7 @@ jobs:
           echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
           echo "JWT_SECRET=${JWT_SECRET}" >> .env
           echo "SESSION_SECRET=${SESSION_SECRET}" >> .env
+          echo "ADMIN_INIT_PASSWORD=${ADMIN_INIT_PASSWORD}" >> .env
         env:
           COMPOSE_PROJECT_NAME: ${{ vars.COMPOSE_PROJECT_NAME }}
           USER_ID: ${{ vars.USER_ID }}
@@ -57,6 +60,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          ADMIN_INIT_PASSWORD: ${{ secrets.ADMIN_INIT_PASSWORD }}
 
       - name: Prep environment
         run: |
