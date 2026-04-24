@@ -2,11 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { getCostAggregation } from '../api';
-import type { CostAggregation, DepartmentCost, ProjectCost } from '../types';
+import type { CostAggregation, DepartmentCost, ProjectCost, EmployeeCost } from '../types';
 import { formatKRW } from '@/lib/format';
+import SortableTable, { type Column } from '@/components/ui/SortableTable';
 import styles from './CostView.module.css';
 
 type DrillLevel = 'company' | 'department' | 'project';
+
+const EMP_COLS: Column<EmployeeCost>[] = [
+  { key: 'name', label: '직원명', render: (e) => e.employeeName, sortValue: (e) => e.employeeName },
+  { key: 'hours', label: '투입 시간(h)', align: 'right', render: (e) => e.hours.toString(), sortValue: (e) => e.hours },
+  { key: 'cost', label: '인건비', align: 'right', render: (e) => formatKRW(e.laborCost), sortValue: (e) => e.laborCost },
+];
 
 export default function CostView() {
   const [data, setData] = useState<CostAggregation | null>(null);
@@ -151,24 +158,11 @@ export default function CostView() {
               <span className={styles.projStatValue}>{formatKRW(selectedProj.directExpense)}</span>
             </div>
           </div>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>직원명</th>
-                <th style={{ textAlign: 'right' }}>투입 시간(h)</th>
-                <th style={{ textAlign: 'right' }}>인건비</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedProj.employees.map((emp) => (
-                <tr key={emp.employeeName}>
-                  <td>{emp.employeeName}</td>
-                  <td style={{ textAlign: 'right' }}>{emp.hours}</td>
-                  <td style={{ textAlign: 'right' }}>{formatKRW(emp.laborCost)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <SortableTable
+            columns={EMP_COLS}
+            data={selectedProj.employees}
+            rowKey={(e) => e.employeeName}
+          />
         </div>
       )}
     </div>
