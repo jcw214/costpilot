@@ -2,9 +2,13 @@ package com.costpilot.global.init;
 
 import com.costpilot.organization.domain.*;
 import com.costpilot.organization.port.out.*;
+import com.costpilot.auth.adapter.persistence.JpaUserRepository;
+import com.costpilot.auth.domain.AppUser;
+import com.costpilot.auth.domain.RoleType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +39,8 @@ public class DataInitializer implements CommandLineRunner {
     private final JpaOverheadExpenseRepository overheadExpenseRepository;
     private final JpaStandardCostRateRepository standardCostRateRepository;
     private final JpaBudgetPlanRepository budgetPlanRepository;
+    private final JpaUserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -45,6 +51,11 @@ public class DataInitializer implements CommandLineRunner {
             List<ProjectType> projectTypes = initProjectTypes();
             List<Employee> employees = initEmployees(departments, jobGrades);
             List<Project> projects = initProjects(departments, projectTypes);
+        }
+
+        // ── 기본 사용자 시딩 ──
+        if (userRepository.count() == 0) {
+            initUsers();
         }
 
         List<Department> departments = departmentRepository.findAll();
@@ -373,5 +384,36 @@ public class DataInitializer implements CommandLineRunner {
         }
         result[ratios.length - 1] = total - sum; // 나머지 보정
         return result;
+    }
+
+    private void initUsers() {
+        log.info("▶ 기본 사용자 시딩 시작");
+        userRepository.saveAll(List.of(
+                AppUser.builder()
+                        .username("admin")
+                        .password(passwordEncoder.encode("admin123"))
+                        .displayName("시스템 관리자")
+                        .role(RoleType.ROLE_ADMIN)
+                        .build(),
+                AppUser.builder()
+                        .username("director")
+                        .password(passwordEncoder.encode("director123"))
+                        .displayName("김본부장")
+                        .role(RoleType.ROLE_DIRECTOR)
+                        .build(),
+                AppUser.builder()
+                        .username("pm")
+                        .password(passwordEncoder.encode("pm123"))
+                        .displayName("박매니저")
+                        .role(RoleType.ROLE_PM)
+                        .build(),
+                AppUser.builder()
+                        .username("user")
+                        .password(passwordEncoder.encode("user123"))
+                        .displayName("이사원")
+                        .role(RoleType.ROLE_USER)
+                        .build()
+        ));
+        log.info("✅ 기본 사용자 4명 시딩 완료 (admin/director/pm/user)");
     }
 }
