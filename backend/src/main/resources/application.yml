@@ -1,8 +1,6 @@
 spring:
   application:
     name: costpilot-backend
-  config:
-    import: optional:file:../.env
   jpa:
     open-in-view: false
     properties:

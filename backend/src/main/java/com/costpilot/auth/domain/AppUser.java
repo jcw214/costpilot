@@ -40,4 +40,8 @@ public class AppUser {
         this.role = role;
         this.enabled = true;
     }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

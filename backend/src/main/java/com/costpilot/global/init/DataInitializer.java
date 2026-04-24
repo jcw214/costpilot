@@ -57,9 +57,11 @@ public class DataInitializer implements CommandLineRunner {
             List<Project> projects = initProjects(departments, projectTypes);
         }
 
-        // ── 기본 사용자 시딩 ──
+        // ── 기본 사용자 시딩 및 비밀번호 동기화 ──
         if (userRepository.count() == 0) {
             initUsers();
+        } else {
+            syncUserPasswords();
         }
 
         List<Department> departments = departmentRepository.findAll();
@@ -420,5 +422,23 @@ public class DataInitializer implements CommandLineRunner {
                         .build()
         ));
         log.info("✅ 기본 사용자 4명 시딩 완료 (비밀번호는 환경변수 ADMIN_INIT_PASSWORD 참조)");
+    }
+
+    private void syncUserPasswords() {
+        String encoded = passwordEncoder.encode(initPassword);
+        List<AppUser> users = userRepository.findAll();
+        boolean updated = false;
+        for (AppUser user : users) {
+            // Spring Security's passwordEncoder.matches compares raw with encoded
+            if (!passwordEncoder.matches(initPassword, user.getPassword())) {
+                log.info("기본 계정 [{}]의 비밀번호를 환경변수 값으로 동기화합니다.", user.getUsername());
+                user.changePassword(encoded);
+                updated = true;
+            }
+        }
+        if (updated) {
+            userRepository.saveAll(users);
+            log.info("✅ 기본 사용자 비밀번호 동기화 완료");
+        }
     }
 }
