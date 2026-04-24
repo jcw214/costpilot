@@ -71,3 +71,21 @@ export interface StandardCostRateSetting {
   standardHours: number;
   standardCost: number;
 }
+
+// ── Settings: 가격 정책 ───────────────────────────────────
+export interface PricingMethodSetting {
+  id: number;
+  code: string;
+  displayName: string;
+  multiplier: number;
+  enabled: boolean;
+}
+
+// ── Settings: 배부 기준 ───────────────────────────────────
+export interface CostDriverSetting {
+  id: number;
+  code: string;
+  displayName: string;
+  description: string;
+  enabled: boolean;
+}

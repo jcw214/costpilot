@@ -5,6 +5,10 @@ import com.costpilot.organization.port.out.*;
 import com.costpilot.auth.adapter.persistence.JpaUserRepository;
 import com.costpilot.auth.domain.AppUser;
 import com.costpilot.auth.domain.RoleType;
+import com.costpilot.settings.adapter.persistence.JpaPricingMethodRepository;
+import com.costpilot.settings.adapter.persistence.JpaCostDriverRepository;
+import com.costpilot.settings.domain.PricingMethodEntity;
+import com.costpilot.settings.domain.CostDriverEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +46,8 @@ public class DataInitializer implements CommandLineRunner {
     private final JpaBudgetPlanRepository budgetPlanRepository;
     private final JpaUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JpaPricingMethodRepository pricingMethodRepository;
+    private final JpaCostDriverRepository costDriverRepository;
 
     @Value("${app.init.admin-password:changeme}")
     private String initPassword;
@@ -84,6 +90,12 @@ public class DataInitializer implements CommandLineRunner {
         }
         if (timeEntryRepository.count() == 0) {
             initTimeEntries(employees, projects);
+        }
+        if (pricingMethodRepository.count() == 0) {
+            initPricingMethods();
+        }
+        if (costDriverRepository.count() == 0) {
+            initCostDrivers();
         }
 
         log.info("=== Mock Data 초기화 완료 ===");
@@ -440,5 +452,29 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.saveAll(users);
             log.info("✅ 기본 사용자 비밀번호 동기화 완료");
         }
+    }
+
+    // ── 설정: 가격 정책 시딩 ───────────────────────────────────
+    private void initPricingMethods() {
+        List<PricingMethodEntity> methods = List.of(
+                PricingMethodEntity.builder().code("COST").displayName("원가 기준").multiplier(1.0).enabled(true).build(),
+                PricingMethodEntity.builder().code("COST_PLUS_10").displayName("원가 + 10%").multiplier(1.1).enabled(true).build(),
+                PricingMethodEntity.builder().code("COST_PLUS_20").displayName("원가 + 20%").multiplier(1.2).enabled(true).build(),
+                PricingMethodEntity.builder().code("MARKET").displayName("시장 가격").multiplier(1.2).enabled(true).build(),
+                PricingMethodEntity.builder().code("NEGOTIATED").displayName("협상 가격").multiplier(0.9).enabled(false).build()
+        );
+        pricingMethodRepository.saveAll(methods);
+        log.info("📋 가격 정책 {}건 시딩 완료", methods.size());
+    }
+
+    // ── 설정: 배부 기준 시딩 ───────────────────────────────────
+    private void initCostDrivers() {
+        List<CostDriverEntity> drivers = List.of(
+                CostDriverEntity.builder().code("HEADCOUNT").displayName("인원 수").description("각 수익본부의 소속 직원 수 비율로 간접비를 배분합니다.").enabled(true).build(),
+                CostDriverEntity.builder().code("REVENUE").displayName("매출액").description("각 수익본부의 프로젝트 계약금액(매출) 비율로 간접비를 배분합니다.").enabled(true).build(),
+                CostDriverEntity.builder().code("LABOR_HOURS").displayName("투입공수").description("각 수익본부의 실제 투입 근무시간 비율로 간접비를 배분합니다.").enabled(true).build()
+        );
+        costDriverRepository.saveAll(drivers);
+        log.info("📋 배부 기준 {}건 시딩 완료", drivers.size());
     }
 }
