@@ -47,7 +47,6 @@ async function proxyRequest(request: NextRequest, pathSegments: string[]) {
 
     const responseHeaders = new Headers();
     responseHeaders.set('Content-Type', res.headers.get('Content-Type') || 'application/json');
-    responseHeaders.set('X-Debug-Backend-Status', res.status.toString());
 
     return new NextResponse(data, {
       status: res.status,

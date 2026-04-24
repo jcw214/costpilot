@@ -1,12 +1,18 @@
 'use client';
 
 import useSWR, { SWRConfiguration } from 'swr';
+import { getAuthToken } from '@/lib/auth';
 
 /**
  * 범용 데이터 페칭 함수 (SWR fetcher)
  */
 async function fetcher<T>(url: string): Promise<T> {
-  const res = await fetch(url);
+  const headers: Record<string, string> = {};
+  const token = getAuthToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(url, { headers });
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: 'Unknown error' }));
     throw new Error(error.message || `API Error: ${res.status}`);
