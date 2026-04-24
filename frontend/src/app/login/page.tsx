@@ -74,13 +74,13 @@ export default function LoginPage() {
         </form>
 
         <div className={styles.hint}>
-          <p>테스트 계정</p>
+          <p>테스트 계정 (비밀번호는 관리자에게 문의)</p>
           <table className={styles.hintTable}>
             <tbody>
-              <tr><td>관리자</td><td>admin / admin123</td></tr>
-              <tr><td>경영진</td><td>director / director123</td></tr>
-              <tr><td>PM</td><td>pm / pm123</td></tr>
-              <tr><td>사용자</td><td>user / user123</td></tr>
+              <tr><td>관리자</td><td>admin</td></tr>
+              <tr><td>경영진</td><td>director</td></tr>
+              <tr><td>PM</td><td>pm</td></tr>
+              <tr><td>사용자</td><td>user</td></tr>
             </tbody>
           </table>
         </div>

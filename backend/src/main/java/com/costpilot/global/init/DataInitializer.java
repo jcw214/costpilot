@@ -7,6 +7,7 @@ import com.costpilot.auth.domain.AppUser;
 import com.costpilot.auth.domain.RoleType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,9 @@ public class DataInitializer implements CommandLineRunner {
     private final JpaBudgetPlanRepository budgetPlanRepository;
     private final JpaUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.init.admin-password:changeme}")
+    private String initPassword;
 
     @Override
     @Transactional
@@ -388,32 +392,33 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initUsers() {
         log.info("▶ 기본 사용자 시딩 시작");
+        String encoded = passwordEncoder.encode(initPassword);
         userRepository.saveAll(List.of(
                 AppUser.builder()
                         .username("admin")
-                        .password(passwordEncoder.encode("admin123"))
+                        .password(encoded)
                         .displayName("시스템 관리자")
                         .role(RoleType.ROLE_ADMIN)
                         .build(),
                 AppUser.builder()
                         .username("director")
-                        .password(passwordEncoder.encode("director123"))
+                        .password(encoded)
                         .displayName("김본부장")
                         .role(RoleType.ROLE_DIRECTOR)
                         .build(),
                 AppUser.builder()
                         .username("pm")
-                        .password(passwordEncoder.encode("pm123"))
+                        .password(encoded)
                         .displayName("박매니저")
                         .role(RoleType.ROLE_PM)
                         .build(),
                 AppUser.builder()
                         .username("user")
-                        .password(passwordEncoder.encode("user123"))
+                        .password(encoded)
                         .displayName("이사원")
                         .role(RoleType.ROLE_USER)
                         .build()
         ));
-        log.info("✅ 기본 사용자 4명 시딩 완료 (admin/director/pm/user)");
+        log.info("✅ 기본 사용자 4명 시딩 완료 (비밀번호는 환경변수 ADMIN_INIT_PASSWORD 참조)");
     }
 }

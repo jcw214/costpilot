@@ -16,3 +16,13 @@ management:
     web:
       exposure:
         include: health,info
+
+# JWT — 반드시 환경변수로 주입 (기본값 없음)
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+# 초기 관리자 계정 — 환경변수로 주입
+app:
+  init:
+    admin-password: ${ADMIN_INIT_PASSWORD:changeme}
