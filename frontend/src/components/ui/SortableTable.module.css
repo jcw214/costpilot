@@ -1,0 +1,116 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 10px 12px;
+  background: rgba(59, 130, 246, 0.04);
+  border-bottom: 2px solid var(--border, #e2e8f0);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-secondary, #475569);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  color: var(--text-primary, #0f172a);
+}
+
+.table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.02);
+}
+
+.sortable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sortable:hover {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.thContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sortIcon {
+  font-size: 10px;
+  opacity: 0.3;
+}
+
+.sortIconActive {
+  font-size: 9px;
+  color: var(--accent, #3b82f6);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.pageInfo {
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+}
+
+.pageButtons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pageButtons button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-card, #fff);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary, #475569);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.pageButtons button:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: var(--accent, #3b82f6);
+  color: var(--accent, #3b82f6);
+}
+
+.pageButtons button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pageCurrent {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary, #475569);
+  padding: 0 8px;
+  min-width: 60px;
+  text-align: center;
+}

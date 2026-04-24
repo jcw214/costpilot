@@ -5,4 +5,4 @@
 services:
   frontend:
     ports:
-      - "${FRONTEND_PORT:-3033}:3001"
+      - "${FRONTEND_PORT:-3033}:3000"

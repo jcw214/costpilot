@@ -1,0 +1,44 @@
+.container { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* ─── 컨트롤 영역 ─── */
+.controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
+.tabGroup { display: flex; gap: 0.5rem; }
+.tab {
+  padding: 0.6rem 1.1rem; border-radius: 8px; border: 1px solid var(--border, #374151);
+  background: var(--bg-card, #1F2937); color: var(--text-secondary, #9CA3AF);
+  cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;
+}
+.tab:hover { border-color: #3B82F6; }
+.tabActive { border-color: #3B82F6 !important; background: rgba(59,130,246,0.1); color: var(--text-primary, #F9FAFB); box-shadow: 0 0 0 1px #3B82F6; }
+
+.driverGroup { display: flex; gap: 0.4rem; }
+.driverBtn {
+  padding: 0.45rem 0.85rem; border-radius: 6px; border: 1px solid var(--border, #374151);
+  background: var(--bg-card, #1F2937); color: var(--text-secondary, #9CA3AF);
+  cursor: pointer; font-size: 0.8rem; transition: all 0.2s;
+}
+.driverBtn:hover { border-color: #8B5CF6; }
+.driverActive { border-color: #8B5CF6 !important; background: rgba(139,92,246,0.1); color: #A78BFA; box-shadow: 0 0 0 1px #8B5CF6; }
+
+/* ─── 테이블 ─── */
+.tableWrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border, #374151); }
+.table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.table thead { background: rgba(59,130,246,0.06); }
+.table th { padding: 0.7rem 1rem; text-align: left; font-weight: 600; color: var(--text-secondary, #9CA3AF); border-bottom: 1px solid var(--border, #374151); white-space: nowrap; }
+.table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border, #1F2937); color: var(--text-primary, #F9FAFB); }
+.table tbody tr:hover { background: rgba(59,130,246,0.04); }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.bold { font-weight: 700; }
+
+/* ─── 유리/불리 ─── */
+.favorable { color: #10B981; }
+.unfavorable { color: #EF4444; }
+.verdict { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.verdictF { background: rgba(16,185,129,0.15); color: #34D399; }
+.verdictU { background: rgba(239,68,68,0.15); color: #F87171; }
+
+/* ─── 로딩 / 빈 상태 ─── */
+.loading { display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 4rem; color: var(--text-secondary, #9CA3AF); }
+.spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.15); border-top-color: #3B82F6; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 4rem; color: var(--text-secondary, #9CA3AF); }

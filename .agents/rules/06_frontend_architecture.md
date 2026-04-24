@@ -1,293 +1,297 @@
-# 📋 프론트엔드 아키텍처: CostPilot
+# 📋 Frontend 아키텍처 설계서
 
+> **프로젝트명**: CostPilot — 원가/관리회계 통합관리 시스템  
+> **문서 버전**: v1.0  
 > **작성일**: 2026-04-22  
 > **작성자**: 정찬우  
-> **프레임워크**: Next.js 14 (App Router, TypeScript)  
-> **차트**: Recharts
+> **관련 문서**: `01_project_plan.md`, `02_requirements_spec.md`, `04_api_spec.md`
 
 ---
 
-## 1. BFF 프록시 구조
+## 1. 아키텍처 개요
+
+### 1.1 BFF (Backend For Frontend) 프록시 패턴
 
 ```
-[브라우저]
-    │  모든 요청은 Next.js로
-    ▼
-[Next.js (Port 3033)]
-    ├── 페이지 렌더링 (SSR/CSR)
-    ├── /app/api/** → Backend 프록시 (BFF)
-    │     fetch("http://backend:8033/api/...")
-    │     ↑ Docker 내부망, 외부 접근 불가
-    └── 세션/인증 관리 (확장 시)
+Browser ──HTTPS──▶ Next.js (Port 3033)
+                      ├── SSR 페이지 렌더링
+                      ├── API Route (/api/*) ──HTTP──▶ Spring Boot (Port 8081)
+                      └── 세션 관리 (iron-session)
 ```
 
-- 브라우저는 **Next.js만 알고**, Spring Boot URL을 직접 모름
-- API Route에서 Backend 응답을 그대로 전달하거나 가공 가능
-- Backend 장애 시 프론트에서 에러 핸들링 가능
+| 구성 요소 | 역할 |
+|---|---|
+| **Next.js Pages** | SSR/CSR 대시보드 페이지 렌더링 |
+| **Next.js API Routes** | BFF 프록시 — Frontend → Backend API 중계 |
+| **iron-session** | 쿠키 기반 세션 (SSR에서 인증 상태 유지) |
 
-### BFF 프록시 구현 (Catch-All Route)
+### 1.2 왜 BFF 프록시인가?
 
-```typescript
-// app/api/[...path]/route.ts
-const BACKEND_URL = process.env.BACKEND_URL || "http://backend:8033";
-
-export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
-  const path = params.path.join("/");
-  const searchParams = request.nextUrl.searchParams.toString();
-  const url = `${BACKEND_URL}/api/${path}${searchParams ? `?${searchParams}` : ""}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
-}
-
-// POST, PUT, DELETE도 동일 패턴
-```
+- Backend(8081)는 Docker 내부 네트워크에만 노출 → 외부 직접 접근 불가
+- Frontend API Route가 내부 네트워크로 Backend를 호출하여 보안 유지
+- `API_BASE_URL=http://backend:8081` (Docker 서비스 이름으로 통신)
 
 ---
 
-## 2. 페이지 구성
+## 2. 기술 스택
 
-### 2.1 레이아웃
-
-```
-┌────────────┬────────────────────────────────┐
-│  사이드바    │       콘텐츠 영역               │
-│            │  ┌─────────────────────────┐   │
-│  전사 요약   │  │  필터 바 (기간/본부)      │   │
-│  ─────────  │  └─────────────────────────┘   │
-│  원가 집계   │  ┌─────────────────────────┐   │
-│  내부대체    │  │  KPI 카드 영역            │   │
-│  표준 배분   │  └─────────────────────────┘   │
-│  원가 요인   │  ┌─────────────────────────┐   │
-│  성과 요인   │  │  차트 영역               │   │
-│  ─────────  │  └─────────────────────────┘   │
-│  데이터관리   │  ┌─────────────────────────┐   │
-│   공수 입력  │  │  데이터 테이블            │   │
-│   비용 관리  │  └─────────────────────────┘   │
-│   예산 관리  │                                │
-└────────────┴────────────────────────────────┘
-```
-
-### 2.2 라우트 구성
-
-| 경로 | 페이지 | 기능 모듈 | 주요 차트 |
+| 항목 | 기술 | 버전 | 선택 근거 |
 |---|---|---|---|
-| `/` | 전사 요약 (홈) | PERF-EXEC | KPI 카드 8개 |
-| `/cost` | 원가 집계 | M1 | Stacked Bar, Pie |
-| `/transfer` | 내부대체가액 | M2 | Grouped Bar |
-| `/standard` | 표준원가 배분 | M3 | Horizontal Bar |
-| `/variance` | 원가 요인 분석 | M4 | Waterfall, Diverging Bar |
-| `/performance` | 성과 요인 분석 | M5 | Grouped Bar, Scatter |
-| `/data/timesheets` | 공수 관리 | CRUD | 테이블 |
-| `/data/expenses` | 비용 관리 | CRUD | 테이블 |
-| `/data/budgets` | 예산·표준원가 | CRUD | 테이블 |
+| Framework | Next.js (App Router) | 14.x | SSR + API Routes + 기존 인프라 |
+| Language | TypeScript | 5.x | 타입 안전성 |
+| 차트 | Recharts | 2.x | React 네이티브, 선언적 API |
+| HTTP Client | fetch (내장) | — | 별도 라이브러리 불필요 |
+| 세션 | iron-session | 8.x | 쿠키 기반 경량 세션 |
+| 스타일링 | CSS Modules | — | 컴포넌트 스코프 격리 |
 
 ---
 
-## 3. 디렉토리 구조
+## 3. 페이지 구조 (9개)
+
+```
+┌────────────┬──────────────────────────────────┐
+│  사이드바    │        콘텐츠 영역                 │
+│            │  ┌────────┐ ┌────────────────┐   │
+│  전사 요약   │  │ 필터    │ │  KPI 카드       │   │
+│  원가 집계   │  └────────┘ └────────────────┘   │
+│  내부대체    │  ┌──────────────────────────┐   │
+│  표준 배분   │  │      차트 영역             │   │
+│  원가 요인   │  └──────────────────────────┘   │
+│  성과 요인   │  ┌──────────────────────────┐   │
+│  기준 데이터  │  │      데이터 테이블           │   │
+│  거래 데이터  │  └──────────────────────────┘   │
+│  설정       │                                │
+└────────────┴──────────────────────────────────┘
+```
+
+### 3.1 페이지 목록
+
+| # | 페이지 | 경로 | 유형 | API 호출 | 주요 구성 |
+|---|---|---|---|---|---|
+| 1 | **전사 요약** (홈) | `/` | 분석 | performance/executive, performance/margin, performance/profit | KPI 카드 8개 + 공헌이익 Bar + 수익성 Scatter |
+| 2 | **원가 집계** | `/cost` | 분석 | cost/staff, cost/project, cost/department, cost/total | 4단계 탭 + 필터 + Stacked Bar + Pie |
+| 3 | **내부대체가액** | `/transfer` | 분석 | transfer/pool, transfer/simulation | 방식 선택 + Driver 선택 + Grouped Bar |
+| 4 | **표준원가 배분** | `/standard` | 분석 | standard/allocation, standard/compare | 기준 테이블 + Horizontal Bar + Grouped Bar |
+| 5 | **원가 요인 분석** | `/variance` | 분석 | variance/labor, variance/overhead, variance/budget, variance/summary | Waterfall + Diverging Bar |
+| 6 | **성과 요인 분석** | `/performance` | 분석 | performance/margin, performance/utilization, performance/profit | Grouped Bar + Horizontal Bar + Scatter |
+| 7 | **기준 데이터** | `/master` | CRUD | departments, employees, projects, project-types, job-grades | 5개 탭 + 테이블 + 직급 시급 수정 |
+| 8 | **거래 데이터** | `/transaction` | CRUD | timesheets, project-direct-costs, overhead-costs, budgets | 4개 탭 + 테이블 + CRUD 모달 |
+| 9 | **설정** | `/settings` | 설정 | standard-costs | 표준공수 테이블 + 수정 |
+
+---
+
+## 4. 디렉토리 구조
 
 ```
 frontend/
-├── app/
-│   ├── layout.tsx                    ← 루트 레이아웃 (사이드바 포함)
-│   ├── page.tsx                      ← 전사 요약 (홈)
-│   │
-│   ├── cost/page.tsx                 ← 원가 집계
-│   ├── transfer/page.tsx             ← 내부대체가액
-│   ├── standard/page.tsx             ← 표준원가 배분
-│   ├── variance/page.tsx             ← 원가 요인 분석
-│   ├── performance/page.tsx          ← 성과 요인 분석
-│   │
-│   ├── data/
-│   │   ├── timesheets/page.tsx       ← 공수 관리 (CRUD)
-│   │   ├── expenses/page.tsx         ← 비용 관리 (CRUD)
-│   │   └── budgets/page.tsx          ← 예산·표준원가 (CRUD)
-│   │
-│   ├── api/
-│   │   └── [...path]/route.ts        ← BFF 프록시 (Catch-All)
-│   │
-│   └── globals.css
-│
-├── components/
-│   ├── layout/
-│   │   ├── Sidebar.tsx               ← 사이드바 내비게이션
-│   │   ├── ContentHeader.tsx         ← 페이지 타이틀 + 필터 바
-│   │   └── KpiCard.tsx               ← KPI 카드 컴포넌트
-│   │
-│   ├── chart/                        ← Recharts 래퍼 컴포넌트
-│   │   ├── StackedBarChart.tsx       ← M1 원가 구성
-│   │   ├── GroupedBarChart.tsx        ← M2 방식별 비교, M5 공헌이익
-│   │   ├── HorizontalBarChart.tsx    ← M3 배분 결과, M5 가동률
-│   │   ├── WaterfallChart.tsx        ← M4 차이 요인 분해
-│   │   ├── DivergingBarChart.tsx     ← M4 유리(F)/불리(U) 비교
-│   │   ├── PieChart.tsx              ← M1 원가 구성비
-│   │   └── ScatterChart.tsx          ← M5 수익성 분포
-│   │
-│   ├── table/                        ← 데이터 테이블
-│   │   ├── DataTable.tsx             ← 공통 테이블 (정렬/페이지네이션)
-│   │   └── CrudModal.tsx             ← 등록/수정 모달
-│   │
-│   └── filter/
-│       ├── DateRangeFilter.tsx       ← 기간 선택 (월/분기)
-│       ├── DepartmentFilter.tsx      ← 본부 선택
-│       └── FilterBar.tsx             ← 필터 조합 바
-│
-├── hooks/                            ← 커스텀 훅
-│   ├── useApi.ts                     ← API 호출 공통 훅 (fetch wrapper)
-│   ├── useFilter.ts                  ← 필터 상태 관리
-│   └── useCrud.ts                    ← CRUD 작업 공통 훅
-│
-├── types/                            ← TypeScript 타입 정의
-│   ├── organization.ts               ← Department, Employee, Project ...
-│   ├── cost.ts                       ← Timesheet, OutsourcingCost ...
-│   ├── budget.ts                     ← Budget, StandardCost
-│   └── analysis.ts                   ← CostStaffResponse, VarianceLaborResponse ...
-│
-├── lib/
-│   └── format.ts                     ← 금액 포맷 (천 단위 쉼표), 날짜 포맷
-│
-├── next.config.ts
-├── tsconfig.json
 ├── package.json
-└── Dockerfile
+├── next.config.js
+├── tsconfig.json
+├── Dockerfile
+│
+├── public/
+│   └── favicon.ico
+│
+└── src/
+    ├── app/                          ← App Router (라우팅 얇은 진입점)
+    │   ├── layout.tsx                ← 루트 레이아웃 (사이드바 + 콘텐츠)
+    │   ├── page.tsx                  ← 전사 요약 (홈)
+    │   ├── cost/page.tsx             
+    │   ├── transfer/page.tsx         
+    │   ├── standard/page.tsx         
+    │   ├── variance/page.tsx         
+    │   ├── performance/page.tsx      
+    │   ├── master/page.tsx           ← 기준 데이터 (기능은 features에 위임)
+    │   ├── transaction/page.tsx      
+    │   ├── settings/page.tsx         
+    │   └── globals.css
+    │
+    ├── features/                     ← 도메인 중심 모듈 ⭐
+    │   ├── organization/             ← 조직 도메인
+    │   │   ├── types.ts              ← 모델 타입 정의
+    │   │   ├── api.ts                ← API 래퍼
+    │   │   ├── MasterView.tsx        ← 페이지 복합 뷰
+    │   │   └── components/           ← 도메인 종속 컴포넌트
+    │   │       ├── DepartmentTab.tsx
+    │   │       └── ...
+    │   ├── timesheet/
+    │   ├── expense/
+    │   └── analysis/
+    │
+    ├── components/                   ← 도메인 무관 공통 UI
+    │   ├── layout/
+    │   │   ├── Sidebar.tsx
+    │   │   ├── Header.tsx
+    │   │   └── PageContainer.tsx
+    │   ├── ui/
+    │   │   ├── KpiCard.tsx
+    │   │   ├── DataTable.tsx
+    │   │   ├── FilterBar.tsx
+    │   │   ├── TabGroup.tsx
+    │   │   ├── Modal.tsx
+    │   │   └── Badge.tsx
+    │   └── charts/
+    │       ├── StackedBarChart.tsx
+    │       └── ...
+    │
+    └── lib/                          ← 공통 유틸리티
+        ├── api.ts                    ← Backend API 호출 래퍼
+        ├── format.ts                 ← 금액 포맷 (천 단위 쉼표)
+        └── constants.ts              ← 색상 팔레트, 경로 상수
 ```
 
 ---
 
-## 4. 컴포넌트 설계
+## 5. 컴포넌트 설계
 
-### 4.1 공통 패턴
-
-모든 분석 페이지는 동일한 구조를 따른다:
+### 5.1 레이아웃 구조
 
 ```tsx
-// 분석 페이지 공통 패턴 (예: cost/page.tsx)
-export default function CostPage() {
-  const { filters, setFilters } = useFilter();
-  const { data, loading } = useApi("/api/analysis/cost/project", filters);
-
-  return (
-    <>
-      <ContentHeader title="원가 집계">
-        <FilterBar filters={filters} onChange={setFilters} />
-      </ContentHeader>
-
-      <KpiCardRow data={summaryData} />
-      <StackedBarChart data={data} />
-      <DataTable columns={columns} data={data} />
-    </>
-  );
-}
+// app/layout.tsx
+<html>
+  <body>
+    <div className="app-layout">
+      <Sidebar />           {/* 고정 사이드바, 네비게이션 메뉴 */}
+      <main>
+        <Header />           {/* 페이지 제목 + Breadcrumb */}
+        <PageContainer>
+          {children}         {/* 각 페이지 콘텐츠 */}
+        </PageContainer>
+      </main>
+    </div>
+  </body>
+</html>
 ```
 
-### 4.2 CRUD 페이지 패턴
+### 5.2 차트 컴포넌트 — Recharts 매핑
 
-```tsx
-// data/timesheets/page.tsx
-export default function TimesheetsPage() {
-  const { items, create, update, remove } = useCrud("/api/timesheets");
-
-  return (
-    <>
-      <ContentHeader title="공수 관리">
-        <Button onClick={() => openModal("create")}>신규 등록</Button>
-      </ContentHeader>
-
-      <DataTable columns={columns} data={items}
-        onEdit={(row) => openModal("edit", row)}
-        onDelete={(row) => remove(row.id)}
-      />
-      <CrudModal fields={fields} onSubmit={create | update} />
-    </>
-  );
-}
-```
-
-### 4.3 차트-데이터 매핑
-
-| 차트 컴포넌트 | 사용 페이지 | API 소스 | 시각화 |
+| 모듈 | 차트 컴포넌트 | Recharts 요소 | 시각화 대상 |
 |---|---|---|---|
-| StackedBarChart | `/cost` | `/analysis/cost/project` | 직접인건비/외주비/간접비 적층 |
-| PieChart | `/cost` | `/analysis/cost/total` | 전사 원가 구성비율 |
-| GroupedBarChart | `/transfer` | `/analysis/transfer/simulation` | 산정 방식별 배부액 비교 |
-| HorizontalBarChart | `/standard` | `/analysis/standard/allocation` | 프로젝트별 표준원가 배분 |
-| WaterfallChart | `/variance` | `/analysis/variance/labor` | 표준→임률차이→능률차이→실제 |
-| DivergingBarChart | `/variance` | `/analysis/variance/summary` | F/U 방향 비교 |
-| GroupedBarChart | `/performance` | `/analysis/performance/margin` | 본부별 매출·원가·공헌이익 |
-| ScatterChart | `/performance` | `/analysis/performance/profit` | 매출규모 × 이익률 분포 |
+| M1 | StackedBarChart | `<BarChart>` + `<Bar stackId>` | 프로젝트별 원가 구성 (직접인건비/직접경비/간접원가) |
+| M1 | PieDonutChart | `<PieChart>` + `<Pie innerRadius>` | 전사 원가 구성비율 |
+| M2 | GroupedBarChart | `<BarChart>` + 다중 `<Bar>` | 산정 방식별 배부 금액 비교 |
+| M3 | HorizontalBarChart | `<BarChart layout="vertical">` | 프로젝트별 표준원가 배분 |
+| M4 | WaterfallChart | `<BarChart>` + 커스텀 Bar | 표준→차이요인→실제 분해 |
+| M4 | DivergingBarChart | `<BarChart>` + 양/음 Bar | 프로젝트별 F/U 방향 비교 |
+| M5 | GroupedBarChart | `<BarChart>` + 다중 `<Bar>` | 본부별 매출·원가·공헌이익 |
+| M5 | ScatterChart | `<ScatterChart>` | 프로젝트 수익성 분포 (매출×이익률) |
 
-### 4.4 색상 규칙
-
-| 의미 | 색상 | 용도 |
-|---|---|---|
-| 유리(F, Favorable) | `#10B981` (초록) | 차이 분석 긍정 |
-| 불리(U, Unfavorable) | `#EF4444` (빨강) | 차이 분석 부정 |
-| 등급 A | `#3B82F6` (파랑) | 우수 프로젝트 |
-| 등급 B | `#F59E0B` (노랑) | 보통 프로젝트 |
-| 등급 C | `#EF4444` (빨강) | 주의 프로젝트 |
-
----
-
-## 5. 핵심 훅 설계
-
-### useApi (API 호출 공통 훅)
+### 5.3 색상 규칙
 
 ```typescript
-function useApi<T>(endpoint: string, params?: FilterParams) {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+// lib/constants.ts
+export const COLORS = {
+  favorable: '#10B981',   // 유리(F) — 초록
+  unfavorable: '#EF4444', // 불리(U) — 빨강
+  neutral: '#6B7280',     // 중립 — 회색
 
-  useEffect(() => {
-    const query = new URLSearchParams(params).toString();
-    fetch(`/api/${endpoint}?${query}`)  // Next.js BFF 프록시 경유
-      .then(res => res.json())
-      .then(setData)
-      .finally(() => setLoading(false));
-  }, [endpoint, params]);
+  // 본부 색상
+  departments: ['#3B82F6', '#8B5CF6', '#F59E0B', '#06B6D4', '#EC4899'],
 
-  return { data, loading };
-}
-```
+  // 차트 시리즈
+  series: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
 
-### useCrud (CRUD 공통 훅)
-
-```typescript
-function useCrud<T>(endpoint: string) {
-  const { data: items, refetch } = useApi<T[]>(endpoint);
-
-  const create = async (body: Partial<T>) => {
-    await fetch(`/api/${endpoint}`, { method: "POST", body: JSON.stringify(body) });
-    refetch();
-  };
-  const update = async (id: number, body: Partial<T>) => { /* PUT */ };
-  const remove = async (id: number) => { /* DELETE */ };
-
-  return { items, create, update, remove };
-}
+  // 등급 색상
+  gradeA: '#10B981',  // 이익률 40%↑
+  gradeB: '#F59E0B',  // 20~40%
+  gradeC: '#EF4444',  // 20%↓
+};
 ```
 
 ---
 
-## 6. Dockerfile
+## 6. API 호출 구조
+
+### 6.1 BFF 프록시 (API Route)
+
+```typescript
+// src/app/api/[...path]/route.ts — catch-all 프록시
+export async function GET(req: NextRequest) {
+  const backendUrl = `${process.env.API_BASE_URL}${req.nextUrl.pathname}${req.nextUrl.search}`;
+  const res = await fetch(backendUrl);
+  return Response.json(await res.json(), { status: res.status });
+}
+```
+
+### 6.2 클라이언트 API 래퍼
+
+```typescript
+// src/lib/api.ts
+export async function fetchApi<T>(path: string, params?: Record<string, string>): Promise<T> {
+  const query = params ? '?' + new URLSearchParams(params).toString() : '';
+  const res = await fetch(`/api${path}${query}`);
+  if (!res.ok) throw new Error(`API Error: ${res.status}`);
+  return res.json();
+}
+```
+
+---
+
+## 7. 금액 포맷·UX 규칙
+
+```typescript
+// src/lib/format.ts
+export function formatKRW(amount: number): string {
+  return new Intl.NumberFormat('ko-KR').format(amount) + '원';
+}
+
+export function formatRate(rate: number): string {
+  return rate.toFixed(1) + '%';
+}
+
+export function judgementColor(judgement: 'F' | 'U'): string {
+  return judgement === 'F' ? COLORS.favorable : COLORS.unfavorable;
+}
+```
+
+| 규칙 | 적용 |
+|---|---|
+| 금액 | `120,000,000원` (천 단위 쉼표 + 원) |
+| 비율 | `39.6%` (소수 1자리) |
+| F/U 판정 | 초록(F)/빨강(U) 배지 |
+| 벤치 인력 | 가동률 80% 미만 → 주의 아이콘 표시 |
+| 데스크톱 | 1280px+ 기본 지원 |
+
+---
+
+## 8. Dockerfile
 
 ```dockerfile
-FROM node:20-alpine AS build
+FROM node:20-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
-COPY --from=build /app/.next ./.next
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./
-EXPOSE 3033
-CMD ["npm", "start"]
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+EXPOSE 3000
+ENV HOSTNAME=0.0.0.0
+CMD ["node", "server.js"]
 ```
+
+> `next.config.js`에서 `output: 'standalone'` 설정 필수
 
 ---
 
-> **다음 단계**: 소스 코드 구현 시작
+## 9. 페이지-API-차트 매핑 요약
+
+| 페이지 | Backend API | 차트 타입 |
+|---|---|---|
+| 전사 요약 `/` | executive, margin, profit | KPI 카드 + Grouped Bar + Scatter |
+| 원가 집계 `/cost` | cost/staff, project, department, total | Stacked Bar + Pie |
+| 내부대체가액 `/transfer` | transfer/pool, simulation | Grouped Bar |
+| 표준원가 배분 `/standard` | standard/allocation, compare | Horizontal Bar + Grouped Bar |
+| 원가 요인 분석 `/variance` | variance/labor, overhead, budget, summary | Waterfall + Diverging + Horizontal Bar |
+| 성과 요인 분석 `/performance` | performance/margin, utilization, profit | Grouped Bar + Horizontal + Scatter |
+| 기준 데이터 `/master` | departments, employees, projects, ... | DataTable |
+| 거래 데이터 `/transaction` | timesheets, project-direct-costs, ... | DataTable + Modal |
+| 설정 `/settings` | standard-costs | DataTable (수정 가능) |
+
+---
+
+> **다음 단계**: Phase 1 구현 — Backend/Frontend 빈 프로젝트 생성 + Docker 빌드 확인

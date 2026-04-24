@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: costpilot-backend
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+# JWT — 반드시 환경변수로 주입 (기본값 없음)
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+# 초기 관리자 계정 — 환경변수로 주입
+app:
+  init:
+    admin-password: ${ADMIN_INIT_PASSWORD:changeme}
