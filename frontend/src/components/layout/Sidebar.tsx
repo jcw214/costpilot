@@ -15,10 +15,10 @@ export default function Sidebar() {
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.logo}>
+      <Link href="/" className={styles.logo}>
         <span className={styles.logoIcon}>🧭</span>
         <span className={styles.logoText}>CostPilot</span>
-      </div>
+      </Link>
       <nav className={styles.nav}>
         {NAV_ITEMS.map((item) => (
           <Link
