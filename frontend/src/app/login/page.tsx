@@ -23,7 +23,7 @@ export default function LoginPage() {
       refresh();
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '로그인 실패');
+      setError(err instanceof Error ? err.message : '로그인에 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -32,24 +32,27 @@ export default function LoginPage() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <div className={styles.logo}>
-          <span className={styles.logoIcon}>🧭</span>
-          <h1 className={styles.logoText}>CostPilot</h1>
+        <div className={styles.header}>
+          <div className={styles.logo}>
+            <span className={styles.logoIcon}>🧭</span>
+            <span className={styles.logoText}>CostPilot</span>
+          </div>
+          <p className={styles.subtitle}>원가관리 시스템</p>
+          <div className={styles.divider} />
         </div>
-        <p className={styles.subtitle}>원가/관리회계 통합관리 시스템</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>
-            <label htmlFor="username" className={styles.label}>사원번호</label>
+            <label htmlFor="username" className={styles.label}>아이디</label>
             <input
               id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className={styles.input}
-              placeholder="admin"
               required
               autoFocus
+              autoComplete="username"
             />
           </div>
 
@@ -61,8 +64,8 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className={styles.input}
-              placeholder="••••••••"
               required
+              autoComplete="current-password"
             />
           </div>
 
@@ -73,16 +76,8 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className={styles.hint}>
-          <p>테스트 계정 (비밀번호는 관리자에게 문의)</p>
-          <table className={styles.hintTable}>
-            <tbody>
-              <tr><td>관리자</td><td>admin</td></tr>
-              <tr><td>경영진</td><td>director</td></tr>
-              <tr><td>PM</td><td>pm</td></tr>
-              <tr><td>사용자</td><td>user</td></tr>
-            </tbody>
-          </table>
+        <div className={styles.footer}>
+          <p>© 2026 CostPilot. 사내 전용 시스템입니다.</p>
         </div>
       </div>
     </div>
