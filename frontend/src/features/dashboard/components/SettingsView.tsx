@@ -198,7 +198,6 @@ function PricingMethodPanel() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>코드</th>
               <th>표시명</th>
               <th>배율</th>
               <th>상태</th>
@@ -208,7 +207,6 @@ function PricingMethodPanel() {
           <tbody>
             {data.map((item) => (
               <tr key={item.id}>
-                <td><code className={styles.codeBadge}>{item.code}</code></td>
                 <td>
                   {editId === item.id ? (
                     <input
@@ -292,51 +290,10 @@ function PricingMethodPanel() {
    배부 기준 관리 패널
    ────────────────────────────────────────────────────────── */
 function CostDriverPanel() {
-  const { data, error, isLoading, mutate } = useFetch<CostDriverSetting[]>('/settings/cost-drivers');
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<Partial<CostDriverSetting>>({});
-  const [saving, setSaving] = useState(false);
-  const [confirm, setConfirm] = useState<{ id: number; values: Partial<CostDriverSetting> } | null>(null);
+  const { data, error, isLoading } = useFetch<CostDriverSetting[]>('/settings/cost-drivers');
 
   if (isLoading) return <LoadingState text="배부 기준 데이터를 불러오는 중..." />;
   if (error || !data) return <ErrorState />;
-
-  const startEdit = (item: CostDriverSetting) => {
-    setEditId(item.id);
-    setEditValues({ displayName: item.displayName, description: item.description, enabled: item.enabled });
-  };
-
-  const cancelEdit = () => {
-    setEditId(null);
-    setEditValues({});
-  };
-
-  const requestSave = () => {
-    if (editId === null) return;
-    setConfirm({ id: editId, values: editValues });
-  };
-
-  const doSave = async () => {
-    if (!confirm) return;
-    setSaving(true);
-    try {
-      const token = getAuthToken();
-      await fetch(`/api/settings/cost-drivers/${confirm.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(confirm.values),
-      });
-      await mutate();
-      setEditId(null);
-      setEditValues({});
-    } finally {
-      setSaving(false);
-      setConfirm(null);
-    }
-  };
 
   return (
     <div className={styles.panelContent}>
@@ -347,7 +304,7 @@ function CostDriverPanel() {
           <div className={styles.infoDesc}>
             지원본부의 간접비를 수익본부에 배분할 때 사용하는 배부 기준(Cost Driver)입니다.
             각 기준은 서로 다른 관점에서 수익본부의 간접비 부담 비율을 산정합니다.
-            비활성화된 기준은 분석 화면의 드롭다운에서 숨겨집니다.
+            시스템의 내부 계산 로직과 결합되어 있으므로 현재 조회만 가능합니다.
           </div>
         </div>
       </div>
@@ -356,89 +313,26 @@ function CostDriverPanel() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>코드</th>
-              <th>표시명</th>
+              <th style={{ width: '150px' }}>표시명</th>
               <th>설명</th>
-              <th>상태</th>
-              <th style={{ width: '120px' }}>관리</th>
+              <th style={{ width: '100px' }}>상태</th>
             </tr>
           </thead>
           <tbody>
             {data.map((item) => (
               <tr key={item.id}>
-                <td><code className={styles.codeBadge}>{item.code}</code></td>
+                <td className={styles.bold}>{item.displayName}</td>
+                <td className={styles.descText}>{item.description}</td>
                 <td>
-                  {editId === item.id ? (
-                    <input
-                      className={styles.editInput}
-                      value={editValues.displayName ?? ''}
-                      onChange={(e) => setEditValues((v) => ({ ...v, displayName: e.target.value }))}
-                    />
-                  ) : (
-                    item.displayName
-                  )}
-                </td>
-                <td className={styles.descCell}>
-                  {editId === item.id ? (
-                    <input
-                      className={styles.editInput}
-                      value={editValues.description ?? ''}
-                      onChange={(e) => setEditValues((v) => ({ ...v, description: e.target.value }))}
-                    />
-                  ) : (
-                    <span className={styles.descText}>{item.description}</span>
-                  )}
-                </td>
-                <td>
-                  {editId === item.id ? (
-                    <label className={styles.toggleWrap}>
-                      <input
-                        type="checkbox"
-                        checked={editValues.enabled ?? true}
-                        onChange={(e) => setEditValues((v) => ({ ...v, enabled: e.target.checked }))}
-                      />
-                      <span className={styles.toggleLabel}>{editValues.enabled ? '활성' : '비활성'}</span>
-                    </label>
-                  ) : (
-                    <span className={`${styles.statusBadge} ${item.enabled ? styles.statusOn : styles.statusOff}`}>
-                      {item.enabled ? '활성' : '비활성'}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  {editId === item.id ? (
-                    <div className={styles.editActions}>
-                      <button className={styles.saveBtn} onClick={requestSave} disabled={saving}>저장</button>
-                      <button className={styles.cancelBtn} onClick={cancelEdit}>취소</button>
-                    </div>
-                  ) : (
-                    <button className={styles.editBtn} onClick={() => startEdit(item)}>수정</button>
-                  )}
+                  <span className={`${styles.statusBadge} ${item.enabled ? styles.statusOn : styles.statusOff}`}>
+                    {item.enabled ? '활성' : '비활성'}
+                  </span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-      {/* 확인 다이얼로그 */}
-      {confirm && (
-        <div className={styles.modalOverlay} onClick={() => setConfirm(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.modalTitle}>⚠️ 변경 확인</h3>
-            <p className={styles.modalDesc}>
-              배부 기준을 변경하면 향후 내부대체가액 및 표준원가 배분 결과에 영향을 줍니다.
-              <br />변경 사항을 저장하시겠습니까?
-            </p>
-            <div className={styles.modalActions}>
-              <button className={styles.cancelBtn} onClick={() => setConfirm(null)}>취소</button>
-              <button className={styles.confirmBtn} onClick={doSave} disabled={saving}>
-                {saving ? '저장 중...' : '저장'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
