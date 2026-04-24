@@ -3,8 +3,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-ARG API_BASE_URL=http://backend:8081
-ENV API_BASE_URL=${API_BASE_URL}
 RUN npm run build
 
 FROM node:20-alpine

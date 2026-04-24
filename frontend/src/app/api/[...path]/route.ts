@@ -1,43 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://backend:8081';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8081';
 
-async function proxyRequest(req: NextRequest) {
-  const pathname = req.nextUrl.pathname.replace(/^\/api/, '');
-  const search = req.nextUrl.search || '';
-  const backendUrl = `${API_BASE_URL}/api${pathname}${search}`;
+export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
+  return proxyRequest(request, params.path);
+}
+
+export async function POST(request: NextRequest, { params }: { params: { path: string[] } }) {
+  return proxyRequest(request, params.path);
+}
+
+export async function PUT(request: NextRequest, { params }: { params: { path: string[] } }) {
+  return proxyRequest(request, params.path);
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { path: string[] } }) {
+  return proxyRequest(request, params.path);
+}
+
+async function proxyRequest(request: NextRequest, pathSegments: string[]) {
+  const path = pathSegments.join('/');
+  const url = `${API_BASE_URL}/api/${path}`;
+
+  const headers: Record<string, string> = {};
+  request.headers.forEach((value, key) => {
+    // 호스트/연결 관련 헤더는 제외
+    if (!['host', 'connection', 'transfer-encoding'].includes(key.toLowerCase())) {
+      headers[key] = value;
+    }
+  });
+
+  const init: RequestInit = {
+    method: request.method,
+    headers,
+  };
+
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    const body = await request.text();
+    if (body) init.body = body;
+  }
 
   try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    const fetchOptions: RequestInit = {
-      method: req.method,
-      headers,
-    };
-
-    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
-      fetchOptions.body = await req.text();
-    }
-
-    const res = await fetch(backendUrl, fetchOptions);
+    const res = await fetch(url, init);
     const data = await res.text();
 
     return new NextResponse(data, {
       status: res.status,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': res.headers.get('Content-Type') || 'application/json',
+      },
     });
   } catch (error) {
     return NextResponse.json(
-      { status: 502, error: 'Bad Gateway', message: 'Backend 서버에 연결할 수 없습니다.' },
+      { message: '백엔드 서버에 연결할 수 없습니다.' },
       { status: 502 }
     );
   }
 }
-
-export async function GET(req: NextRequest) { return proxyRequest(req); }
-export async function POST(req: NextRequest) { return proxyRequest(req); }
-export async function PUT(req: NextRequest) { return proxyRequest(req); }
-export async function PATCH(req: NextRequest) { return proxyRequest(req); }
-export async function DELETE(req: NextRequest) { return proxyRequest(req); }
