@@ -54,126 +54,53 @@
   gap: 1.5rem;
 }
 
-.dropzone {
-  position: relative;
-  border: 2px dashed var(--border);
-  border-radius: 8px;
-  padding: 2rem 1rem;
+/* Coming Soon 스타일 */
+.comingSoon {
   text-align: center;
-  background: rgba(59, 130, 246, 0.02);
-  transition: all 0.2s ease;
+  padding: 1rem 0;
 }
 
-.dropzone:hover {
-  border-color: var(--accent);
-  background: rgba(59, 130, 246, 0.05);
+.comingSoonIcon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
 }
 
-.dropzoneIcon {
-  font-size: 2rem;
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-}
-
-.dropzone p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0 0 0.5rem 0;
-}
-
-.dropzone strong {
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.dropzoneHint {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.fileInput {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.fileInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: 6px;
-  font-size: 0.875rem;
-  color: #059669;
-  font-weight: 500;
-}
-
-.removeFileBtn {
-  background: none;
-  border: none;
-  color: #059669;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.templateSection {
-  background: var(--bg-main);
-  padding: 1rem;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.templateDesc {
-  font-size: 0.8125rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.templateBtn {
-  background: white;
-  border: 1px solid var(--border);
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
+.comingSoonTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
   color: var(--text-primary);
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  margin: 0 0 0.5rem;
 }
 
-.templateBtn:hover { background: #f9fafb; }
+.comingSoonDesc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
 
-.optionSection {
+.featureList {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  text-align: left;
+  background: rgba(59, 130, 246, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
 }
 
-.optionLabel {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.radioGroup {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.radioLabel {
+.featureItem {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.75rem;
   font-size: 0.8125rem;
   color: var(--text-secondary);
-  cursor: pointer;
+}
+
+.featureIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .footer {
@@ -186,37 +113,19 @@
   border-radius: 0 0 12px 12px;
 }
 
-.cancelBtn, .uploadBtn {
+.cancelBtn {
   padding: 0.5rem 1.25rem;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-}
-
-.cancelBtn {
   background: white;
   border: 1px solid var(--border);
   color: var(--text-secondary);
 }
 
 .cancelBtn:hover { background: #f9fafb; }
-
-.uploadBtn {
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  color: white;
-}
-
-.uploadBtn:hover:not(:disabled) { opacity: 0.9; }
-
-.uploadBtn:disabled {
-  background: var(--text-muted);
-  border-color: var(--text-muted);
-  cursor: not-allowed;
-  opacity: 0.5;
-}
 
 @keyframes fadeIn {
   from { opacity: 0; }

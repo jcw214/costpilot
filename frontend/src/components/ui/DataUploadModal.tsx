@@ -1,19 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import styles from './DataUploadModal.module.css';
 
 interface DataUploadModalProps {
   title: string;
   isOpen: boolean;
   onClose: () => void;
-  onUpload?: () => void; // UI용이므로 실제 구현은 안 함
 }
 
-export default function DataUploadModal({ title, isOpen, onClose, onUpload }: DataUploadModalProps) {
-  const [uploadOption, setUploadOption] = useState('overwrite');
-  const [file, setFile] = useState<File | null>(null);
-
+export default function DataUploadModal({ title, isOpen, onClose }: DataUploadModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -25,71 +20,33 @@ export default function DataUploadModal({ title, isOpen, onClose, onUpload }: Da
         </div>
 
         <div className={styles.content}>
-          {/* 드래그 앤 드롭 영역 UI Mock */}
-          <div className={styles.dropzone}>
-            <div className={styles.dropzoneIcon}>📎</div>
-            <p>파일을 여기에 드래그하거나<br /><strong>클릭하여 선택하세요</strong></p>
-            <span className={styles.dropzoneHint}>지원 형식: .xlsx, .xls</span>
-            <input 
-              type="file" 
-              className={styles.fileInput} 
-              accept=".xlsx, .xls"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-            />
-          </div>
-
-          {file && (
-            <div className={styles.fileInfo}>
-              <span>📄 {file.name}</span>
-              <button className={styles.removeFileBtn} onClick={() => setFile(null)}>✕</button>
-            </div>
-          )}
-
-          <div className={styles.templateSection}>
-            <p className={styles.templateDesc}>업로드 전 템플릿 양식에 맞춰 데이터를 준비해 주세요.</p>
-            <button className={styles.templateBtn}>📄 템플릿 다운로드</button>
-          </div>
-
-          <div className={styles.optionSection}>
-            <label className={styles.optionLabel}>중복 처리 방식</label>
-            <div className={styles.radioGroup}>
-              <label className={styles.radioLabel}>
-                <input 
-                  type="radio" 
-                  name="uploadOption" 
-                  value="skip" 
-                  checked={uploadOption === 'skip'} 
-                  onChange={(e) => setUploadOption(e.target.value)} 
-                />
-                건너뛰기 (기존 데이터 유지)
-              </label>
-              <label className={styles.radioLabel}>
-                <input 
-                  type="radio" 
-                  name="uploadOption" 
-                  value="overwrite" 
-                  checked={uploadOption === 'overwrite'} 
-                  onChange={(e) => setUploadOption(e.target.value)} 
-                />
-                덮어쓰기 (새 데이터로 업데이트)
-              </label>
+          <div className={styles.comingSoon}>
+            <div className={styles.comingSoonIcon}>🚧</div>
+            <h3 className={styles.comingSoonTitle}>추후 구현 예정</h3>
+            <p className={styles.comingSoonDesc}>
+              실무 데이터를 엑셀 파일(.xlsx)로 일괄 업로드할 수 있는 기능입니다.
+              <br />
+              현재는 개발 중이며, 향후 업데이트를 통해 제공될 예정입니다.
+            </p>
+            <div className={styles.featureList}>
+              <div className={styles.featureItem}>
+                <span className={styles.featureIcon}>📄</span>
+                <span>템플릿 양식에 맞춘 엑셀 파일 업로드</span>
+              </div>
+              <div className={styles.featureItem}>
+                <span className={styles.featureIcon}>🔄</span>
+                <span>기존 데이터와의 중복 처리 (건너뛰기 / 덮어쓰기)</span>
+              </div>
+              <div className={styles.featureItem}>
+                <span className={styles.featureIcon}>✅</span>
+                <span>업로드 전 데이터 유효성 검증</span>
+              </div>
             </div>
           </div>
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.cancelBtn} onClick={onClose}>취소</button>
-          <button 
-            className={styles.uploadBtn} 
-            disabled={!file}
-            onClick={() => {
-              if (onUpload) onUpload();
-              alert('실무 데이터 연동 확장을 위해 준비된 데모 UI입니다.');
-              onClose();
-            }}
-          >
-            데이터 업로드
-          </button>
+          <button className={styles.cancelBtn} onClick={onClose}>닫기</button>
         </div>
       </div>
     </div>

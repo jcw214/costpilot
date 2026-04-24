@@ -62,12 +62,16 @@ function StandardCostPanel() {
   return (
     <div className={styles.panelContent}>
       <div className={styles.infoCard}>
-        <span className={styles.infoIcon}>ℹ️</span>
+        <span className={styles.infoIcon}>📐</span>
         <div>
-          <div className={styles.infoTitle}>표준원가 기준표</div>
+          <div className={styles.infoTitle}>표준원가 기준표 (참조용)</div>
           <div className={styles.infoDesc}>
-            프로젝트 유형 × 직급별 표준시급과 표준공수를 기반으로 산출된 표준원가입니다.
-            직급별 표준시급은 <strong>기준 데이터 → 직급</strong> 메뉴에서 수정할 수 있습니다.
+            프로젝트 유형 × 직급별 <strong>표준시급 × 표준공수</strong>로 산출된 표준원가 요약입니다.
+            이 데이터는 직접 수정하는 것이 아니라, 아래 기준 데이터에서 자동으로 계산됩니다.
+            <br />
+            · 직급별 표준시급 수정 → <strong>기준 데이터 → 직급</strong> 탭
+            <br />
+            · 유형별 표준공수 수정 → <strong>기준 데이터 → 프로젝트 유형</strong> 탭
           </div>
         </div>
       </div>

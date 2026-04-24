@@ -18,6 +18,9 @@ const DRIVER_OPTIONS: { key: CostDriver; label: string; desc: string }[] = [
   { key: 'LABOR_HOURS', label: '투입공수', desc: '본부별 총 투입시간 비율' },
 ];
 
+const METHOD_LABEL: Record<string, string> = Object.fromEntries(METHOD_OPTIONS.map((o) => [o.key, o.label]));
+const DRIVER_LABEL: Record<string, string> = Object.fromEntries(DRIVER_OPTIONS.map((o) => [o.key, o.label]));
+
 export default function TransferView() {
   const [method, setMethod] = useState<PricingMethod>('COST');
   const [driver, setDriver] = useState<CostDriver>('HEADCOUNT');
@@ -83,8 +86,8 @@ export default function TransferView() {
                   </div>
                 </div>
                 <div className={styles.badgeGroup}>
-                  <div className={styles.pricingBadge}>{item.pricingMethod}</div>
-                  <div className={styles.driverBadge}>{item.costDriver}</div>
+                  <div className={styles.pricingBadge}>{METHOD_LABEL[item.pricingMethod] || item.pricingMethod}</div>
+                  <div className={styles.driverBadge}>{DRIVER_LABEL[item.costDriver] || item.costDriver}</div>
                 </div>
               </div>
 
