@@ -24,8 +24,9 @@ async function proxyRequest(request: NextRequest, pathSegments: string[]) {
 
   const headers: Record<string, string> = {};
   request.headers.forEach((value, key) => {
-    // 호스트/연결 관련 헤더는 제외
-    if (!['host', 'connection', 'transfer-encoding'].includes(key.toLowerCase())) {
+    // 호스트/연결/CORS 관련 헤더는 제외
+    const lowerKey = key.toLowerCase();
+    if (!['host', 'connection', 'transfer-encoding', 'origin', 'referer'].includes(lowerKey)) {
       headers[key] = value;
     }
   });
@@ -44,15 +45,17 @@ async function proxyRequest(request: NextRequest, pathSegments: string[]) {
     const res = await fetch(url, init);
     const data = await res.text();
 
+    const responseHeaders = new Headers();
+    responseHeaders.set('Content-Type', res.headers.get('Content-Type') || 'application/json');
+    responseHeaders.set('X-Debug-Backend-Status', res.status.toString());
+
     return new NextResponse(data, {
       status: res.status,
-      headers: {
-        'Content-Type': res.headers.get('Content-Type') || 'application/json',
-      },
+      headers: responseHeaders,
     });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
-      { message: '백엔드 서버에 연결할 수 없습니다.' },
+      { message: '백엔드 서버에 연결할 수 없습니다.', error: error.message },
       { status: 502 }
     );
   }
