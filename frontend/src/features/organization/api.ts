@@ -46,3 +46,17 @@ export async function updateJobGradeRate(
 ): Promise<JobGrade> {
   return mutateApi<JobGrade>(`/job-grades/${id}`, 'PATCH', { standardHourlyRate });
 }
+
+export async function updateEmployeeHourlyRate(
+  id: number,
+  hourlyRate: number,
+): Promise<Employee> {
+  return mutateApi<Employee>(`/employees/${id}`, 'PATCH', { hourlyRate });
+}
+
+export async function updateProjectContractAmount(
+  id: number,
+  contractAmount: number,
+): Promise<Project> {
+  return mutateApi<Project>(`/projects/${id}`, 'PATCH', { contractAmount });
+}

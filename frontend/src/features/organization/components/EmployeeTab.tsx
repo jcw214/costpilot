@@ -3,9 +3,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import DataTable, { Column } from '@/components/ui/DataTable';
 import FilterBar, { FilterField } from '@/components/ui/FilterBar';
-import { getDepartments, getEmployees, getJobGrades } from '../api';
+import { getDepartments, getEmployees, getJobGrades, updateEmployeeHourlyRate } from '../api';
 import { formatKRW } from '@/lib/format';
 import type { Department, Employee, JobGrade } from '../types';
+import styles from '../MasterView.module.css';
 
 export default function EmployeeTab() {
   const [data, setData] = useState<Employee[]>([]);
@@ -14,6 +15,8 @@ export default function EmployeeTab() {
   const [loading, setLoading] = useState(true);
   const [deptFilter, setDeptFilter] = useState('');
   const [gradeFilter, setGradeFilter] = useState('');
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState('');
 
   useEffect(() => {
     getDepartments().then(setDepartments).catch(() => {});
@@ -30,14 +33,52 @@ export default function EmployeeTab() {
 
   useEffect(() => { load(); }, [load]);
 
+  const handleSave = async (id: number) => {
+    const rate = parseInt(editValue, 10);
+    if (isNaN(rate) || rate <= 0) return;
+    try {
+      await updateEmployeeHourlyRate(id, rate);
+      setEditId(null);
+      load();
+    } catch { /* noop */ }
+  };
+
   const columns: Column<Employee>[] = [
     { key: 'name', label: '이름' },
     { key: 'departmentName', label: '소속 본부' },
     { key: 'jobGradeCode', label: '직급코드', width: '80px', align: 'center' },
     { key: 'jobGradeName', label: '직급명' },
     {
-      key: 'hourlyRate', label: '실제시급', width: '120px', align: 'right',
-      render: (val) => formatKRW(val as number),
+      key: 'hourlyRate', label: '실제시급', width: '160px', align: 'right',
+      render: (val, row) => {
+        const emp = row as Employee;
+        if (editId === emp.id) {
+          return (
+            <div className={styles.editCell}>
+              <input
+                className={styles.editInput}
+                type="number"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSave(emp.id)}
+                autoFocus
+              />
+              <button className={styles.saveBtn} onClick={() => handleSave(emp.id)}>저장</button>
+              <button className={styles.cancelBtn} onClick={() => setEditId(null)}>취소</button>
+            </div>
+          );
+        }
+        return (
+          <span
+            className={styles.editableValue}
+            onClick={() => { setEditId(emp.id); setEditValue(String(val)); }}
+            title="클릭하여 수정"
+          >
+            {formatKRW(val as number)}
+            <span className={styles.editIcon}>✏️</span>
+          </span>
+        );
+      },
     },
     {
       key: 'standardHourlyRate', label: '표준시급', width: '120px', align: 'right',
@@ -71,6 +112,9 @@ export default function EmployeeTab() {
 
   return (
     <>
+      <div className={styles.infoBox}>
+        💡 실제시급을 클릭하면 수정할 수 있습니다. 변경 시 원가 집계 및 차이 분석 결과에 반영됩니다.
+      </div>
       <FilterBar
         filters={filters}
         onChange={(key, val) => {

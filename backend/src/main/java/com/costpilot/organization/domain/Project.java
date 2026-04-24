@@ -52,4 +52,8 @@ public class Project {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public void updateContractAmount(Long contractAmount) {
+        this.contractAmount = contractAmount;
+    }
 }

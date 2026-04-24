@@ -37,4 +37,8 @@ public class Employee {
         this.jobGrade = jobGrade;
         this.hourlyRate = hourlyRate;
     }
+
+    public void updateHourlyRate(Integer hourlyRate) {
+        this.hourlyRate = hourlyRate;
+    }
 }

@@ -17,4 +17,8 @@ public interface OrganizationQueryUseCase {
     List<JobGradeResponse> getJobGrades();
 
     JobGradeResponse updateJobGradeStandardRate(Long id, Integer standardHourlyRate);
+
+    EmployeeResponse updateEmployeeHourlyRate(Long id, Integer hourlyRate);
+
+    ProjectResponse updateProjectContractAmount(Long id, Long contractAmount);
 }

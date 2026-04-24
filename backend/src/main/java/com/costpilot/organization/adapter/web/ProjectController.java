@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -19,5 +20,13 @@ public class ProjectController {
             @RequestParam(required = false) Long departmentId,
             @RequestParam(required = false) String status) {
         return organizationQueryUseCase.getProjects(departmentId, status);
+    }
+
+    @PatchMapping("/{id}")
+    public ProjectResponse updateContractAmount(
+            @PathVariable Long id,
+            @RequestBody Map<String, Long> request) {
+        Long contractAmount = request.get("contractAmount");
+        return organizationQueryUseCase.updateProjectContractAmount(id, contractAmount);
     }
 }

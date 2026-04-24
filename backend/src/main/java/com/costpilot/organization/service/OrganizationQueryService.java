@@ -123,4 +123,41 @@ public class OrganizationQueryService implements OrganizationQueryUseCase {
                 jobGrade.getName(), jobGrade.getStandardHourlyRate()
         );
     }
+
+    @Override
+    @Transactional
+    public EmployeeResponse updateEmployeeHourlyRate(Long id, Integer hourlyRate) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "직원을 찾을 수 없습니다: id=" + id, HttpStatus.NOT_FOUND));
+        employee.updateHourlyRate(hourlyRate);
+        return new EmployeeResponse(
+                employee.getId(),
+                employee.getName(),
+                employee.getDepartment().getName(),
+                employee.getJobGrade().getCode(),
+                employee.getJobGrade().getName(),
+                employee.getHourlyRate(),
+                employee.getJobGrade().getStandardHourlyRate()
+        );
+    }
+
+    @Override
+    @Transactional
+    public ProjectResponse updateProjectContractAmount(Long id, Long contractAmount) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(
+                        "프로젝트를 찾을 수 없습니다: id=" + id, HttpStatus.NOT_FOUND));
+        project.updateContractAmount(contractAmount);
+        return new ProjectResponse(
+                project.getId(),
+                project.getName(),
+                project.getDepartment().getName(),
+                project.getProjectType().getName(),
+                project.getStatus().name(),
+                project.getContractAmount(),
+                project.getStartDate(),
+                project.getEndDate()
+        );
+    }
 }
