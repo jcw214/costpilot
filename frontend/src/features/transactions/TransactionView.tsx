@@ -35,7 +35,7 @@ export default function TransactionView() {
             boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
           }}
         >
-          <span>📥</span> 엑셀 데이터 업로드
+          <span>📥</span> 데이터 업로드
         </button>
       </div>
 
