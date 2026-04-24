@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getStandardCost } from '../api';
 import type { StandardCostData, StandardRate, ProjectComparison, CostDriver } from '../types';
 import { formatKRW } from '@/lib/format';
+import { gradeOrder } from '@/lib/constants';
 import SortableTable, { type Column } from '@/components/ui/SortableTable';
 import styles from './StandardView.module.css';
 
@@ -16,7 +17,7 @@ const TABS: { key: Tab; label: string; icon: string }[] = [
 
 const RATE_COLS: Column<StandardRate>[] = [
   { key: 'type', label: '프로젝트 유형', render: (r) => r.projectTypeName, sortValue: (r) => r.projectTypeName },
-  { key: 'grade', label: '직급', render: (r) => r.jobGradeName, sortValue: (r) => r.jobGradeName },
+  { key: 'grade', label: '직급', render: (r) => r.jobGradeName, sortValue: (r) => gradeOrder(r.jobGradeName) },
   { key: 'hourlyRate', label: '표준시급', align: 'right', render: (r) => formatKRW(r.standardHourlyRate), sortValue: (r) => r.standardHourlyRate },
   { key: 'hours', label: '표준공수(h)', align: 'right', render: (r) => r.standardHours.toFixed(0), sortValue: (r) => r.standardHours },
   { key: 'cost', label: '표준원가', align: 'right', render: (r) => formatKRW(r.standardCost), sortValue: (r) => r.standardCost },

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useFetch } from '@/lib/hooks';
 import type { PerformanceData, DepartmentPerformance, ProjectPerformance, EmployeeUtilization } from '@/features/dashboard/types';
 import { formatKRWShort } from '@/lib/format';
+import { gradeOrder } from '@/lib/constants';
 import StackedBarChart from '@/components/charts/StackedBarChart';
 import SortableTable, { type Column } from '@/components/ui/SortableTable';
 import styles from './PerformanceView.module.css';
@@ -53,7 +54,7 @@ const PROJ_COLS: Column<ProjectPerformance>[] = [
 const EMP_COLS: Column<EmployeeUtilization>[] = [
   { key: 'name', label: '직원명', render: (e) => <span className={styles.nameCell}>{e.employeeName}</span>, sortValue: (e) => e.employeeName },
   { key: 'dept', label: '본부', render: (e) => e.departmentName, sortValue: (e) => e.departmentName },
-  { key: 'grade', label: '직급', render: (e) => e.jobGradeName, sortValue: (e) => e.jobGradeName },
+  { key: 'grade', label: '직급', render: (e) => e.jobGradeName, sortValue: (e) => gradeOrder(e.jobGradeName) },
   { key: 'hours', label: '투입시간', align: 'right', render: (e) => `${e.totalHours}h`, sortValue: (e) => e.totalHours },
   { key: 'stdHours', label: '표준시간', align: 'right', render: (e) => `${e.standardHours}h`, sortValue: (e) => e.standardHours },
   {

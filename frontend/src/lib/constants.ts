@@ -14,6 +14,23 @@ export const COLORS = {
 } as const;
 
 /**
+ * 직급 체계 순서 — 가나다 순이 아닌 직급 위계 순으로 정렬할 때 사용
+ * 숫자가 낮을수록 하위 직급, 높을수록 상위 직급
+ */
+export const JOB_GRADE_ORDER: Record<string, number> = {
+  '사원': 1,
+  '대리': 2,
+  '과장/선임': 3,
+  '차장/책임': 4,
+  '부장/수석': 5,
+};
+
+/** 직급명으로 위계 순서값을 반환. 매칭 안 되면 이름 기반 폴백 */
+export function gradeOrder(gradeName: string): number {
+  return JOB_GRADE_ORDER[gradeName] ?? 99;
+}
+
+/**
  * [추후 확장 가능] 권한 계층 — 역할별 메뉴 접근 제어가 필요할 때 활성화
  *
  * export const ROLE_HIERARCHY: Record<string, number> = {
