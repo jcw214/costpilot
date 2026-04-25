@@ -45,3 +45,9 @@
 .tabIcon {
   font-size: 14px;
 }
+
+/* ─── 반응형 ─── */
+@media (max-width: 768px) {
+  .tabGroup { flex-direction: column; }
+  .tab { justify-content: flex-start; }
+}

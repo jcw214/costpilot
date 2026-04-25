@@ -164,3 +164,51 @@ body {
   font-size: 48px;
   opacity: 0.5;
 }
+
+/* ── 반응형: 태블릿 (1024px 이하) ── */
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .main-content {
+    padding: 24px;
+  }
+
+  .kpi-value {
+    font-size: 24px;
+  }
+}
+
+/* ── 반응형: 모바일 (768px 이하) ── */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    max-width: 100vw;
+    padding: 60px 16px 16px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .page-subtitle {
+    font-size: 13px;
+  }
+
+  .kpi-value {
+    font-size: 22px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .chart-container {
+    padding: 16px;
+  }
+}

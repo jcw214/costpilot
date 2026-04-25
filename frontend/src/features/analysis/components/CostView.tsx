@@ -5,6 +5,7 @@ import { getCostAggregation } from '../api';
 import type { CostAggregation, DepartmentCost, ProjectCost, EmployeeCost } from '../types';
 import { formatKRW } from '@/lib/format';
 import SortableTable, { type Column } from '@/components/ui/SortableTable';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import styles from './CostView.module.css';
 
 type DrillLevel = 'company' | 'department' | 'project';
@@ -29,12 +30,7 @@ export default function CostView() {
   }, []);
 
   if (loading) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.spinner} />
-        <span>원가 데이터를 집계하는 중...</span>
-      </div>
-    );
+    return <LoadingSpinner text="원가 데이터를 집계하는 중..." fullHeight />;
   }
 
   if (!data) {

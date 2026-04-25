@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useFetch } from '@/lib/hooks';
 import { getAuthToken } from '@/lib/auth';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ErrorState from '@/components/ui/ErrorState';
 import type {
   StandardCostRateSetting,
   PricingMethodSetting,
@@ -50,7 +52,7 @@ export default function SettingsView() {
 function StandardCostPanel() {
   const { data, error, isLoading } = useFetch<StandardCostRateSetting[]>('/standard-cost-rates');
 
-  if (isLoading) return <LoadingState text="표준원가 기준 데이터를 불러오는 중..." />;
+  if (isLoading) return <LoadingSpinner text="표준원가 기준 데이터를 불러오는 중..." fullHeight />;
   if (error || !data) return <ErrorState />;
 
   const grouped = data.reduce<Record<string, StandardCostRateSetting[]>>((acc, item) => {
@@ -144,7 +146,7 @@ function PricingMethodPanel() {
   const [saving, setSaving] = useState(false);
   const [confirm, setConfirm] = useState<{ id: number; values: Partial<PricingMethodSetting> } | null>(null);
 
-  if (isLoading) return <LoadingState text="가격 정책 데이터를 불러오는 중..." />;
+  if (isLoading) return <LoadingSpinner text="가격 정책 데이터를 불러오는 중..." fullHeight />;
   if (error || !data) return <ErrorState />;
 
   const startEdit = (item: PricingMethodSetting) => {
@@ -296,7 +298,7 @@ function PricingMethodPanel() {
 function CostDriverPanel() {
   const { data, error, isLoading } = useFetch<CostDriverSetting[]>('/settings/cost-drivers');
 
-  if (isLoading) return <LoadingState text="배부 기준 데이터를 불러오는 중..." />;
+  if (isLoading) return <LoadingSpinner text="배부 기준 데이터를 불러오는 중..." fullHeight />;
   if (error || !data) return <ErrorState />;
 
   return (
@@ -337,27 +339,6 @@ function CostDriverPanel() {
           </tbody>
         </table>
       </div>
-    </div>
-  );
-}
-
-/* ──────────────────────────────────────────────────────────
-   공통 상태 컴포넌트
-   ────────────────────────────────────────────────────────── */
-function LoadingState({ text }: { text: string }) {
-  return (
-    <div className={styles.loading}>
-      <div className={styles.spinner} />
-      <span>{text}</span>
-    </div>
-  );
-}
-
-function ErrorState() {
-  return (
-    <div className={styles.error}>
-      <span>⚠️</span>
-      <span>데이터를 불러올 수 없습니다.</span>
     </div>
   );
 }

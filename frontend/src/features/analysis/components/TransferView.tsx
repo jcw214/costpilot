@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getTransferPricing } from '../api';
 import type { TransferPricing, PricingMethod, CostDriver } from '../types';
 import { formatKRW } from '@/lib/format';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import styles from './TransferView.module.css';
 
 const METHOD_OPTIONS: { key: PricingMethod; label: string; desc: string }[] = [
@@ -67,10 +68,7 @@ export default function TransferView() {
       </div>
 
       {loading ? (
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
-          <span>시뮬레이션 계산 중...</span>
-        </div>
+        <LoadingSpinner text="시뮬레이션 계산 중..." fullHeight />
       ) : data.length === 0 ? (
         <div className={styles.empty}>배부 대상 데이터가 없습니다.</div>
       ) : (

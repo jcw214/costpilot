@@ -6,6 +6,7 @@ import type { StandardCostData, StandardRate, ProjectComparison, CostDriver } fr
 import { formatKRW } from '@/lib/format';
 import { gradeOrder } from '@/lib/constants';
 import SortableTable, { type Column } from '@/components/ui/SortableTable';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import styles from './StandardView.module.css';
 
 type Tab = 'rates' | 'compare';
@@ -55,7 +56,7 @@ export default function StandardView() {
     getStandardCost('HEADCOUNT' as CostDriver).then(setData).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className={styles.loading}><div className={styles.spinner} /><span>로딩 중...</span></div>;
+  if (loading) return <LoadingSpinner text="표준원가 데이터 로딩 중..." fullHeight />;
   if (!data) return <div className={styles.empty}>데이터가 없습니다.</div>;
 
   return (
