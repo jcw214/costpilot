@@ -75,3 +75,6 @@ yarn-error.log*
 ### Gradle Wrapper ###
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+
+### Credentials ###
+CostPilot_프로젝트_소개서.md
