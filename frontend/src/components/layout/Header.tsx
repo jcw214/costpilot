@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
 import { NAV_ITEMS } from '@/lib/constants';
@@ -29,7 +30,7 @@ function getRoleLabel(role: string): string {
 
 export default function Header() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   if (pathname === '/login' || !user) return null;
 
@@ -48,6 +49,13 @@ export default function Header() {
           <span className={styles.name}>{user.displayName}</span>
           <span className={styles.role}>{getRoleLabel(user.role)}</span>
         </div>
+        <div className={styles.divider} />
+        <Link href="/settings" className={styles.headerBtn} title="설정" aria-label="설정">
+          ⚙️
+        </Link>
+        <button className={styles.headerBtn} onClick={signOut} title="로그아웃" aria-label="로그아웃">
+          🚪
+        </button>
       </div>
     </header>
   );
