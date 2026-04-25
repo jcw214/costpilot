@@ -5,6 +5,7 @@ import { getVarianceAnalysis } from '../api';
 import type { VarianceAnalysisData, LaborVariance, BudgetConsumption, VarianceSummary } from '../types';
 import { formatKRW } from '@/lib/format';
 import SortableTable, { type Column } from '@/components/ui/SortableTable';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import styles from './VarianceView.module.css';
 
 type Tab = 'labor' | 'overhead' | 'budget' | 'summary';
@@ -85,7 +86,7 @@ export default function VarianceView() {
     getVarianceAnalysis().then(setData).finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className={styles.loading}><div className={styles.spinner} /><span>분석 중...</span></div>;
+  if (loading) return <LoadingSpinner text="분석 중..." fullHeight />;
   if (!data) return <div className={styles.empty}>데이터가 없습니다.</div>;
 
   return (

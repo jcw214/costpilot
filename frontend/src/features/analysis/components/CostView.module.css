@@ -149,3 +149,12 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .empty { text-align: center; padding: 4rem; color: var(--text-secondary, #9CA3AF); }
+
+/* ─── 반응형 ─── */
+@media (max-width: 768px) {
+  .summaryCard { flex-direction: column; text-align: center; gap: 0.5rem; }
+  .summaryValue { font-size: 1.35rem; }
+  .projSummary { grid-template-columns: 1fr; }
+  .grid { grid-template-columns: 1fr; }
+  .tableWrap { overflow-x: auto; }
+}

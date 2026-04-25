@@ -7,6 +7,8 @@ import { formatKRWShort } from '@/lib/format';
 import { gradeOrder } from '@/lib/constants';
 import StackedBarChart from '@/components/charts/StackedBarChart';
 import SortableTable, { type Column } from '@/components/ui/SortableTable';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ErrorState from '@/components/ui/ErrorState';
 import styles from './PerformanceView.module.css';
 
 type Tab = 'department' | 'project' | 'employee';
@@ -77,21 +79,11 @@ export default function PerformanceView() {
   const { data, error, isLoading } = useFetch<PerformanceData>('/dashboard/performance');
 
   if (isLoading) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.spinner} />
-        <span>성과 분석 중...</span>
-      </div>
-    );
+    return <LoadingSpinner text="성과 분석 중..." fullHeight />;
   }
 
   if (error || !data) {
-    return (
-      <div className={styles.error}>
-        <span>⚠️</span>
-        <span>데이터를 불러올 수 없습니다.</span>
-      </div>
-    );
+    return <ErrorState />;
   }
 
   const deptChartData = data.departmentPerformances.map((d) => ({

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 import styles from './DataTable.module.css';
 
 export interface Column<T> {
@@ -91,10 +92,7 @@ export default function DataTable<T extends object>({
   if (loading) {
     return (
       <div className={styles.wrapper}>
-        <div className={styles.loading}>
-          <div className={styles.spinner} />
-          <span>데이터를 불러오는 중...</span>
-        </div>
+        <LoadingSpinner fullHeight={true} />
       </div>
     );
   }

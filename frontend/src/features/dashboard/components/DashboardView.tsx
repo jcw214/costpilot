@@ -5,27 +5,19 @@ import type { DashboardSummary } from '@/features/dashboard/types';
 import { formatKRWShort, formatKRW } from '@/lib/format';
 import KpiCard from '@/components/ui/KpiCard';
 import StackedBarChart from '@/components/charts/StackedBarChart';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import ErrorState from '@/components/ui/ErrorState';
 import styles from './DashboardView.module.css';
 
 export default function DashboardView() {
   const { data, error, isLoading } = useFetch<DashboardSummary>('/dashboard/summary');
 
   if (isLoading) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.spinner} />
-        <span>대시보드 데이터를 불러오는 중...</span>
-      </div>
-    );
+    return <LoadingSpinner text="대시보드 데이터를 불러오는 중..." fullHeight />;
   }
 
   if (error || !data) {
-    return (
-      <div className={styles.error}>
-        <span className={styles.errorIcon}>⚠️</span>
-        <span>데이터를 불러올 수 없습니다. 백엔드 서버 연결을 확인해주세요.</span>
-      </div>
-    );
+    return <ErrorState message="데이터를 불러올 수 없습니다. 백엔드 서버 연결을 확인해주세요." />;
   }
 
   const chartData = data.departmentContributions.map((d) => ({

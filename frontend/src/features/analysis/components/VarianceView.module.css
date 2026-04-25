@@ -57,3 +57,11 @@
 .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.15); border-top-color: #3B82F6; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .empty { text-align: center; padding: 4rem; color: var(--text-secondary, #9CA3AF); }
+
+/* ─── 반응형 ─── */
+@media (max-width: 768px) {
+  .ohGrid { grid-template-columns: 1fr; }
+  .ohTotal { grid-column: 1; }
+  .ohDivider { grid-column: 1; }
+  .tab { font-size: 0.78rem; padding: 0.5rem 0.75rem; }
+}

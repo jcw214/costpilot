@@ -140,3 +140,11 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .empty { text-align: center; padding: 4rem; color: var(--text-secondary, #9CA3AF); }
+
+/* ─── 반응형 ─── */
+@media (max-width: 768px) {
+  .methodGroup { grid-template-columns: 1fr; }
+  .card { padding: 1rem; }
+  .cardHeader { flex-direction: column; gap: 0.5rem; }
+  .badgeGroup { order: -1; }
+}

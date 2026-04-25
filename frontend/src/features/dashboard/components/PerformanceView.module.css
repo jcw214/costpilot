@@ -185,3 +185,9 @@
   color: var(--unfavorable);
   font-size: 0.875rem;
 }
+
+/* ─── 반응형 ─── */
+@media (max-width: 768px) {
+  .tabGroup { flex-direction: column; }
+  .tab { justify-content: flex-start; }
+}
