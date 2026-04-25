@@ -73,3 +73,13 @@ docker compose -f docker-compose.local.yml up -d
 # 프로덕션 배포
 docker compose up --build -d
 ```
+
+## 확장 로드맵
+
+| 우선순위 | 기능 |
+|---|---|
+| 🔴 높음 | 엑셀 업로드 (템플릿 → 유효성 검증 → 벌크 등록) |
+| 🔴 높음 | 대시보드 기간 동적 설정 |
+| 🟡 보통 | 역할 기반 접근 제어 (RBAC) |
+| 🟡 보통 | 거래 데이터 인라인 CRUD |
+| 🟢 낮음 | PDF 리포트 내보내기, 다국어 지원 |
