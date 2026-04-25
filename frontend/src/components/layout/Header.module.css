@@ -32,7 +32,7 @@
 .right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .user {
@@ -59,11 +59,37 @@
   border-radius: 4px;
 }
 
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+.headerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-decoration: none;
+}
+
+.headerBtn:hover {
+  background: var(--bg-primary);
+}
+
 /* ─── 반응형 ─── */
 @media (max-width: 768px) {
   .header {
     margin-left: 0;
-    padding: 0 16px 0 52px; /* 햄버거 버튼 공간 확보 */
+    padding: 0 12px 0 52px;
     height: 48px;
   }
 
@@ -72,6 +98,10 @@
   }
 
   .user {
+    display: none;
+  }
+
+  .divider {
     display: none;
   }
 }
